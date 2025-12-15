@@ -1,0 +1,440 @@
+//
+//  SharedComponents.swift
+//  DF774
+//
+
+import SwiftUI
+
+// Note: Colors are auto-generated from Assets.xcassets by Xcode
+// Use Color.deepCharcoal, Color.warmGold, etc. directly
+
+// MARK: - Background Gradient
+struct AppBackground: View {
+    var intensity: Double = 1.0
+    
+    var body: some View {
+        ZStack {
+            Color.deepCharcoal
+                .ignoresSafeArea()
+            
+            // Ambient glow effects
+            GeometryReader { geometry in
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [
+                                Color.warmGold.opacity(0.15 * intensity),
+                                Color.clear
+                            ],
+                            center: .center,
+                            startRadius: 0,
+                            endRadius: geometry.size.width * 0.6
+                        )
+                    )
+                    .frame(width: geometry.size.width * 1.2, height: geometry.size.width * 1.2)
+                    .position(x: geometry.size.width * 0.8, y: geometry.size.height * 0.2)
+                
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [
+                                Color.mutedAmber.opacity(0.1 * intensity),
+                                Color.clear
+                            ],
+                            center: .center,
+                            startRadius: 0,
+                            endRadius: geometry.size.width * 0.5
+                        )
+                    )
+                    .frame(width: geometry.size.width, height: geometry.size.width)
+                    .position(x: geometry.size.width * 0.2, y: geometry.size.height * 0.8)
+            }
+        }
+    }
+}
+
+// MARK: - Primary Button Style
+struct PrimaryButtonStyle: ButtonStyle {
+    var isDestructive: Bool = false
+    
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 17, weight: .semibold, design: .rounded))
+            .foregroundColor(isDestructive ? .white : .deepCharcoal)
+            .frame(maxWidth: .infinity)
+            .frame(height: 56)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(isDestructive ? Color.mutedAmber : Color.warmGold)
+                    .shadow(color: (isDestructive ? Color.mutedAmber : Color.warmGold).opacity(0.4), radius: 12, x: 0, y: 6)
+            )
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .opacity(configuration.isPressed ? 0.9 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+    }
+}
+
+// MARK: - Secondary Button Style
+struct SecondaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 17, weight: .medium, design: .rounded))
+            .foregroundColor(.warmGold)
+            .frame(maxWidth: .infinity)
+            .frame(height: 56)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.warmGold.opacity(0.5), lineWidth: 1.5)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.warmGold.opacity(0.08))
+                    )
+            )
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .opacity(configuration.isPressed ? 0.8 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+    }
+}
+
+// MARK: - Card Style
+struct CardModifier: ViewModifier {
+    var padding: CGFloat = 20
+    
+    func body(content: Content) -> some View {
+        content
+            .padding(padding)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.darkSurface)
+                    .shadow(color: Color.black.opacity(0.3), radius: 16, x: 0, y: 8)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.warmGold.opacity(0.1), lineWidth: 1)
+            )
+    }
+}
+
+extension View {
+    func cardStyle(padding: CGFloat = 20) -> some View {
+        modifier(CardModifier(padding: padding))
+    }
+}
+
+// MARK: - Glow Text
+struct GlowText: View {
+    let text: String
+    var font: Font = .system(size: 32, weight: .bold, design: .rounded)
+    var color: Color = .warmGold
+    
+    var body: some View {
+        ZStack {
+            Text(text)
+                .font(font)
+                .foregroundColor(color.opacity(0.6))
+                .blur(radius: 8)
+            
+            Text(text)
+                .font(font)
+                .foregroundColor(color)
+        }
+    }
+}
+
+// MARK: - Animated Progress Ring
+struct ProgressRing: View {
+    let progress: Double
+    var lineWidth: CGFloat = 8
+    var size: CGFloat = 80
+    
+    @State private var animatedProgress: Double = 0
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(Color.warmGold.opacity(0.2), lineWidth: lineWidth)
+            
+            Circle()
+                .trim(from: 0, to: animatedProgress)
+                .stroke(
+                    LinearGradient(
+                        colors: [.warmGold, .mutedAmber],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+                )
+                .rotationEffect(.degrees(-90))
+                .shadow(color: .warmGold.opacity(0.5), radius: 4, x: 0, y: 0)
+            
+            Text("\(Int(progress * 100))%")
+                .font(.system(size: size * 0.22, weight: .bold, design: .rounded))
+                .foregroundColor(.softCream)
+        }
+        .frame(width: size, height: size)
+        .onAppear {
+            withAnimation(.easeOut(duration: 1.0)) {
+                animatedProgress = progress
+            }
+        }
+        .onChange(of: progress) { newValue in
+            withAnimation(.easeOut(duration: 0.5)) {
+                animatedProgress = newValue
+            }
+        }
+    }
+}
+
+// MARK: - Difficulty Badge
+struct DifficultyBadge: View {
+    let difficulty: Difficulty
+    var isSelected: Bool = false
+    
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: difficulty.icon)
+                .font(.system(size: 14, weight: .semibold))
+            
+            Text(difficulty.rawValue)
+                .font(.system(size: 14, weight: .semibold, design: .rounded))
+        }
+        .foregroundColor(isSelected ? .deepCharcoal : .softCream.opacity(0.8))
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background(
+            Capsule()
+                .fill(isSelected ? Color.warmGold : Color.darkSurface)
+        )
+        .overlay(
+            Capsule()
+                .stroke(Color.warmGold.opacity(isSelected ? 0 : 0.3), lineWidth: 1)
+        )
+    }
+}
+
+// MARK: - Level Node
+struct LevelNode: View {
+    let level: Int
+    let isUnlocked: Bool
+    let isCompleted: Bool
+    var isCurrent: Bool = false
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(backgroundColor)
+                .frame(width: 52, height: 52)
+                .shadow(color: shadowColor, radius: isCompleted ? 8 : 4, x: 0, y: 2)
+            
+            if isCompleted {
+                Image(systemName: "checkmark")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(.deepCharcoal)
+            } else if isUnlocked {
+                Text("\(level)")
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .foregroundColor(.deepCharcoal)
+            } else {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.softCream.opacity(0.4))
+            }
+            
+            if isCurrent {
+                Circle()
+                    .stroke(Color.warmGold, lineWidth: 3)
+                    .frame(width: 60, height: 60)
+                    .shadow(color: .warmGold.opacity(0.5), radius: 8, x: 0, y: 0)
+            }
+        }
+    }
+    
+    private var backgroundColor: Color {
+        if isCompleted {
+            return .successGreen
+        } else if isUnlocked {
+            return .warmGold
+        } else {
+            return .darkSurface
+        }
+    }
+    
+    private var shadowColor: Color {
+        if isCompleted {
+            return .successGreen.opacity(0.5)
+        } else if isUnlocked {
+            return .warmGold.opacity(0.4)
+        } else {
+            return .clear
+        }
+    }
+}
+
+// MARK: - Navigation Bar Style
+struct CustomNavigationBar: View {
+    let title: String
+    var showBackButton: Bool = true
+    var backAction: (() -> Void)?
+    var trailingContent: AnyView? = nil
+    
+    var body: some View {
+        HStack {
+            if showBackButton {
+                Button(action: { backAction?() }) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.warmGold)
+                        .frame(width: 44, height: 44)
+                }
+            } else {
+                Spacer()
+                    .frame(width: 44)
+            }
+            
+            Spacer()
+            
+            Text(title)
+                .font(.system(size: 18, weight: .semibold, design: .rounded))
+                .foregroundColor(.softCream)
+            
+            Spacer()
+            
+            if let trailing = trailingContent {
+                trailing
+                    .frame(width: 44, height: 44)
+            } else {
+                Spacer()
+                    .frame(width: 44)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+    }
+}
+
+// MARK: - Pulse Animation
+struct PulseAnimation: ViewModifier {
+    @State private var isPulsing = false
+    var color: Color = .warmGold
+    
+    func body(content: Content) -> some View {
+        content
+            .overlay(
+                Circle()
+                    .stroke(color.opacity(isPulsing ? 0 : 0.6), lineWidth: 2)
+                    .scaleEffect(isPulsing ? 1.5 : 1.0)
+                    .opacity(isPulsing ? 0 : 1)
+            )
+            .onAppear {
+                withAnimation(.easeOut(duration: 1.5).repeatForever(autoreverses: false)) {
+                    isPulsing = true
+                }
+            }
+    }
+}
+
+extension View {
+    func pulseAnimation(color: Color = .warmGold) -> some View {
+        modifier(PulseAnimation(color: color))
+    }
+}
+
+// MARK: - Shimmer Effect
+struct ShimmerEffect: ViewModifier {
+    @State private var phase: CGFloat = 0
+    
+    func body(content: Content) -> some View {
+        content
+            .overlay(
+                LinearGradient(
+                    colors: [
+                        Color.clear,
+                        Color.white.opacity(0.3),
+                        Color.clear
+                    ],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+                .rotationEffect(.degrees(30))
+                .offset(x: phase)
+                .mask(content)
+            )
+            .onAppear {
+                withAnimation(.linear(duration: 2.0).repeatForever(autoreverses: false)) {
+                    phase = 400
+                }
+            }
+    }
+}
+
+extension View {
+    func shimmer() -> some View {
+        modifier(ShimmerEffect())
+    }
+}
+
+// MARK: - Lives Indicator
+struct LivesIndicator: View {
+    let lives: Int
+    let maxLives: Int
+    
+    var body: some View {
+        HStack(spacing: 6) {
+            ForEach(0..<maxLives, id: \.self) { index in
+                Image(systemName: index < lives ? "heart.fill" : "heart")
+                    .font(.system(size: 18))
+                    .foregroundColor(index < lives ? .mutedAmber : .mutedAmber.opacity(0.3))
+                    .scaleEffect(index < lives ? 1.0 : 0.85)
+            }
+        }
+    }
+}
+
+// MARK: - Score Display
+struct ScoreDisplay: View {
+    let score: Int
+    var label: String = "Score"
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Text(label.uppercased())
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .foregroundColor(.softCream.opacity(0.5))
+                .tracking(1.5)
+            
+            Text("\(score)")
+                .font(.system(size: 28, weight: .bold, design: .rounded))
+                .foregroundColor(.warmGold)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.darkSurface)
+        )
+    }
+}
+
+// MARK: - Animated Counter
+struct AnimatedCounter: View {
+    let value: Int
+    
+    @State private var displayedValue: Int = 0
+    
+    var body: some View {
+        Text("\(displayedValue)")
+            .font(.system(size: 48, weight: .bold, design: .rounded))
+            .foregroundColor(.warmGold)
+            .onAppear {
+                withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) {
+                    displayedValue = value
+                }
+            }
+            .onChange(of: value) { newValue in
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+                    displayedValue = newValue
+                }
+            }
+    }
+}
+
