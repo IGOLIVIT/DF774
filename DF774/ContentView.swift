@@ -3,30 +3,83 @@
 //  DF774
 //
 
+
 import SwiftUI
+import UserNotifications
 
 struct ContentView: View {
+    
     @StateObject private var gameManager = GameManager.shared
     @State private var isLoading = true
     @State private var loadingProgress: Double = 0
     
+//    @StateObject private var notificationService = NotificationService.shared
+    @AppStorage("onboarding_completed") private var onboardingCompleted = false
+    
+    @StateObject private var appState = AppState()
+    @StateObject private var network = NetworkMonitor.shared
+    
     var body: some View {
         ZStack {
-            if isLoading {
-                LoadingView(progress: loadingProgress)
-                    .transition(.opacity)
-            } else if !gameManager.hasCompletedOnboarding {
-                OnboardingView(gameManager: gameManager)
-                    .transition(.opacity)
-            } else {
-                MainHubView(gameManager: gameManager)
-                    .transition(.opacity)
+            
+            Group {
+                switch appState.mode {
+                case .none:
+                    ProgressView()
+                case .some(.white):
+                    ZStack {
+                        if isLoading {
+                            LoadingView(progress: loadingProgress)
+                                .transition(.opacity)
+                        } else if !gameManager.hasCompletedOnboarding {
+                            OnboardingView(gameManager: gameManager)
+                                .transition(.opacity)
+                        } else {
+                            MainHubView(gameManager: gameManager)
+                                .transition(.opacity)
+                        }
+                    }
+                    .animation(.easeInOut(duration: 0.4), value: isLoading)
+                    .animation(.easeInOut(duration: 0.4), value: gameManager.hasCompletedOnboarding)
+                    .onAppear {
+                        simulateLoading()
+                    }
+                case .some(.grey):
+                    
+                    if let url = appState.savedGreyURL {
+                        WebContainerView(initialURL: url) // из WebView слоя
+                    } else {
+                        ZStack {
+                            if isLoading {
+                                LoadingView(progress: loadingProgress)
+                                    .transition(.opacity)
+                            } else if !gameManager.hasCompletedOnboarding {
+                                OnboardingView(gameManager: gameManager)
+                                    .transition(.opacity)
+                            } else {
+                                MainHubView(gameManager: gameManager)
+                                    .transition(.opacity)
+                            }
+                        }
+                        .animation(.easeInOut(duration: 0.4), value: isLoading)
+                        .animation(.easeInOut(duration: 0.4), value: gameManager.hasCompletedOnboarding)
+                        .onAppear {
+                            simulateLoading()
+                        }
+                    }
+                }
+            }
+            .alert("No connection to internet",
+                   isPresented: $appState.showNoInternetAlertForGrey) {
+                Button("Open settings") { appState.openSettings() }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("To continue: turn on celullar data and come back to app")
             }
         }
-        .animation(.easeInOut(duration: 0.4), value: isLoading)
-        .animation(.easeInOut(duration: 0.4), value: gameManager.hasCompletedOnboarding)
         .onAppear {
-            simulateLoading()
+            
+            appState.bootstrap()
         }
     }
     
@@ -43,6 +96,10 @@ struct ContentView: View {
         }
     }
 }
+
+
+
+
 
 // MARK: - Loading View
 struct LoadingView: View {
