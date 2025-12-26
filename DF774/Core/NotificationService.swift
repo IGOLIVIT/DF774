@@ -79,7 +79,7 @@ final class NotificationService: ObservableObject {
     /// Обновление статуса разрешений
     func updatePermissionStatus() {
         UNUserNotificationCenter.current().getNotificationSettings { settings in
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 self.permissionStatus = settings.authorizationStatus
                 print("🔔 Статус разрешений: \(settings.authorizationStatus.description)")
             }

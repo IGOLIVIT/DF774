@@ -11,7 +11,7 @@ import SwiftUI
 struct DF774App: App {
     
     // Инициализируем сервис уведомлений
-    @StateObject private var notificationService = NotificationService.shared
+    private let notificationService = NotificationService.shared
     
     var body: some Scene {
         WindowGroup {

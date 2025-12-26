@@ -8,391 +8,81 @@ import UserNotifications
 
 struct ContentView: View {
     
-    @StateObject private var gameManager = GameManager.shared
+    @ObservedObject private var gameManager = GameManager.shared
     @State private var isLoading = true
     @State private var loadingProgress: Double = 0
     
     @AppStorage("onboarding_completed") private var onboardingCompleted = false
     
-    
-    @StateObject private var notificationService = NotificationService.shared
+    @ObservedObject private var notificationService = NotificationService.shared
     
     @StateObject private var appState = AppState()
-    @StateObject private var network = NetworkMonitor.shared
+    @ObservedObject private var network = NetworkMonitor.shared
     
     var body: some View {
         ZStack {
-            
-            Group {
-                switch appState.mode {
-                case .none:
-                    ProgressView()
-                case .some(.white):
-                    ZStack {
-                        
-                        Group {
-                            switch appState.mode {
-                            case .none:
-                                ProgressView()
-                            case .some(.white):
-                                ZStack {
-                                    
-                                    Group {
-                                        switch appState.mode {
-                                        case .none:
-                                            ProgressView()
-                                        case .some(.white):
-                                            ZStack {
-                                                if isLoading {
-                                                    LoadingView(progress: loadingProgress)
-                                                        .transition(.opacity)
-                                                } else if !gameManager.hasCompletedOnboarding {
-                                                    OnboardingView(gameManager: gameManager)
-                                                        .transition(.opacity)
-                                                } else {
-                                                    MainHubView(gameManager: gameManager)
-                                                        .transition(.opacity)
-                                                }
-                                            }
-                                            .animation(.easeInOut(duration: 0.4), value: isLoading)
-                                            .animation(.easeInOut(duration: 0.4), value: gameManager.hasCompletedOnboarding)
-                                            .onAppear {
-                                                simulateLoading()
-                                            }
-                                        case .some(.grey):
-                                            
-                                            if let url = appState.savedGreyURL {
-                                                WebContainerView(initialURL: url) // из WebView слоя
-                                            } else {
-                                                ZStack {
-                                                    if isLoading {
-                                                        LoadingView(progress: loadingProgress)
-                                                            .transition(.opacity)
-                                                    } else if !gameManager.hasCompletedOnboarding {
-                                                        OnboardingView(gameManager: gameManager)
-                                                            .transition(.opacity)
-                                                    } else {
-                                                        MainHubView(gameManager: gameManager)
-                                                            .transition(.opacity)
-                                                    }
-                                                }
-                                                .animation(.easeInOut(duration: 0.4), value: isLoading)
-                                                .animation(.easeInOut(duration: 0.4), value: gameManager.hasCompletedOnboarding)
-                                                .onAppear {
-                                                    simulateLoading()
-                                                }
-                                            }
-                                        }
-                                    }
-                                    .alert("No connection to internet",
-                                           isPresented: $appState.showNoInternetAlertForGrey) {
-                                        Button("Open settings") { appState.openSettings() }
-                                        Button("Cancel", role: .cancel) { }
-                                    } message: {
-                                        Text("To continue: turn on celullar data and come back to app")
-                                    }
-                                }
-                                .onAppear {
-                                    
-                                    appState.bootstrap()
-                                }
-                            case .some(.grey):
-                                
-                                if let url = appState.savedGreyURL {
-                                    WebContainerView(initialURL: url) // из WebView слоя
-                                } else {
-                                    ZStack {
-                                        
-                                        Group {
-                                            switch appState.mode {
-                                            case .none:
-                                                ProgressView()
-                                            case .some(.white):
-                                                ZStack {
-                                                    if isLoading {
-                                                        LoadingView(progress: loadingProgress)
-                                                            .transition(.opacity)
-                                                    } else if !gameManager.hasCompletedOnboarding {
-                                                        OnboardingView(gameManager: gameManager)
-                                                            .transition(.opacity)
-                                                    } else {
-                                                        MainHubView(gameManager: gameManager)
-                                                            .transition(.opacity)
-                                                    }
-                                                }
-                                                .animation(.easeInOut(duration: 0.4), value: isLoading)
-                                                .animation(.easeInOut(duration: 0.4), value: gameManager.hasCompletedOnboarding)
-                                                .onAppear {
-                                                    simulateLoading()
-                                                }
-                                            case .some(.grey):
-                                                
-                                                if let url = appState.savedGreyURL {
-                                                    WebContainerView(initialURL: url) // из WebView слоя
-                                                } else {
-                                                    ZStack {
-                                                        if isLoading {
-                                                            LoadingView(progress: loadingProgress)
-                                                                .transition(.opacity)
-                                                        } else if !gameManager.hasCompletedOnboarding {
-                                                            OnboardingView(gameManager: gameManager)
-                                                                .transition(.opacity)
-                                                        } else {
-                                                            MainHubView(gameManager: gameManager)
-                                                                .transition(.opacity)
-                                                        }
-                                                    }
-                                                    .animation(.easeInOut(duration: 0.4), value: isLoading)
-                                                    .animation(.easeInOut(duration: 0.4), value: gameManager.hasCompletedOnboarding)
-                                                    .onAppear {
-                                                        simulateLoading()
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        .alert("No connection to internet",
-                                               isPresented: $appState.showNoInternetAlertForGrey) {
-                                            Button("Open settings") { appState.openSettings() }
-                                            Button("Cancel", role: .cancel) { }
-                                        } message: {
-                                            Text("To continue: turn on celullar data and come back to app")
-                                        }
-                                    }
-                                    .onAppear {
-                                        
-                                        appState.bootstrap()
-                                    }
-                                }
-                            }
-                        }
-                        .alert("No connection to internet",
-                               isPresented: $appState.showNoInternetAlertForGrey) {
-                            Button("Open settings") { appState.openSettings() }
-                            Button("Cancel", role: .cancel) { }
-                        } message: {
-                            Text("To continue: turn on celullar data and come back to app")
-                        }
-                    }
-                    .onAppear {
-                        appState.bootstrap()
-                        
-                        // Обновляем статус разрешений при появлении экрана
-                        notificationService.updatePermissionStatus()
-                        
-                        // Логируем Player ID для отладки с задержкой
-                        Task {
-                            try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 секунды
-                            
-                            await MainActor.run {
-                                if let playerId = notificationService.currentPlayerId {
-                                    print("🔔 Current OneSignal Player ID: \(playerId)")
-                                } else {
-                                    print("🔔 OneSignal Player ID еще не доступен")
-                                }
-                            }
-                        }
-                    }
-                case .some(.grey):
-                    
-                    if let url = appState.savedGreyURL {
-                        WebContainerView(initialURL: url) // из WebView слоя
-                    } else {
-                        ZStack {
-                            
-                            Group {
-                                switch appState.mode {
-                                case .none:
-                                    ProgressView()
-                                case .some(.white):
-                                    ZStack {
-                                        
-                                        Group {
-                                            switch appState.mode {
-                                            case .none:
-                                                ProgressView()
-                                            case .some(.white):
-                                                ZStack {
-                                                    if isLoading {
-                                                        LoadingView(progress: loadingProgress)
-                                                            .transition(.opacity)
-                                                    } else if !gameManager.hasCompletedOnboarding {
-                                                        OnboardingView(gameManager: gameManager)
-                                                            .transition(.opacity)
-                                                    } else {
-                                                        MainHubView(gameManager: gameManager)
-                                                            .transition(.opacity)
-                                                    }
-                                                }
-                                                .animation(.easeInOut(duration: 0.4), value: isLoading)
-                                                .animation(.easeInOut(duration: 0.4), value: gameManager.hasCompletedOnboarding)
-                                                .onAppear {
-                                                    simulateLoading()
-                                                }
-                                            case .some(.grey):
-                                                
-                                                if let url = appState.savedGreyURL {
-                                                    WebContainerView(initialURL: url) // из WebView слоя
-                                                } else {
-                                                    ZStack {
-                                                        if isLoading {
-                                                            LoadingView(progress: loadingProgress)
-                                                                .transition(.opacity)
-                                                        } else if !gameManager.hasCompletedOnboarding {
-                                                            OnboardingView(gameManager: gameManager)
-                                                                .transition(.opacity)
-                                                        } else {
-                                                            MainHubView(gameManager: gameManager)
-                                                                .transition(.opacity)
-                                                        }
-                                                    }
-                                                    .animation(.easeInOut(duration: 0.4), value: isLoading)
-                                                    .animation(.easeInOut(duration: 0.4), value: gameManager.hasCompletedOnboarding)
-                                                    .onAppear {
-                                                        simulateLoading()
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        .alert("No connection to internet",
-                                               isPresented: $appState.showNoInternetAlertForGrey) {
-                                            Button("Open settings") { appState.openSettings() }
-                                            Button("Cancel", role: .cancel) { }
-                                        } message: {
-                                            Text("To continue: turn on celullar data and come back to app")
-                                        }
-                                    }
-                                    .onAppear {
-                                        
-                                        appState.bootstrap()
-                                    }
-                                case .some(.grey):
-                                    
-                                    if let url = appState.savedGreyURL {
-                                        WebContainerView(initialURL: url) // из WebView слоя
-                                    } else {
-                                        ZStack {
-                                            
-                                            Group {
-                                                switch appState.mode {
-                                                case .none:
-                                                    ProgressView()
-                                                case .some(.white):
-                                                    ZStack {
-                                                        if isLoading {
-                                                            LoadingView(progress: loadingProgress)
-                                                                .transition(.opacity)
-                                                        } else if !gameManager.hasCompletedOnboarding {
-                                                            OnboardingView(gameManager: gameManager)
-                                                                .transition(.opacity)
-                                                        } else {
-                                                            MainHubView(gameManager: gameManager)
-                                                                .transition(.opacity)
-                                                        }
-                                                    }
-                                                    .animation(.easeInOut(duration: 0.4), value: isLoading)
-                                                    .animation(.easeInOut(duration: 0.4), value: gameManager.hasCompletedOnboarding)
-                                                    .onAppear {
-                                                        simulateLoading()
-                                                    }
-                                                case .some(.grey):
-                                                    
-                                                    if let url = appState.savedGreyURL {
-                                                        WebContainerView(initialURL: url) // из WebView слоя
-                                                    } else {
-                                                        ZStack {
-                                                            if isLoading {
-                                                                LoadingView(progress: loadingProgress)
-                                                                    .transition(.opacity)
-                                                            } else if !gameManager.hasCompletedOnboarding {
-                                                                OnboardingView(gameManager: gameManager)
-                                                                    .transition(.opacity)
-                                                            } else {
-                                                                MainHubView(gameManager: gameManager)
-                                                                    .transition(.opacity)
-                                                            }
-                                                        }
-                                                        .animation(.easeInOut(duration: 0.4), value: isLoading)
-                                                        .animation(.easeInOut(duration: 0.4), value: gameManager.hasCompletedOnboarding)
-                                                        .onAppear {
-                                                            simulateLoading()
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            .alert("No connection to internet",
-                                                   isPresented: $appState.showNoInternetAlertForGrey) {
-                                                Button("Open settings") { appState.openSettings() }
-                                                Button("Cancel", role: .cancel) { }
-                                            } message: {
-                                                Text("To continue: turn on celullar data and come back to app")
-                                            }
-                                        }
-                                        .onAppear {
-                                            
-                                            appState.bootstrap()
-                                        }
-                                    }
-                                }
-                            }
-                            .alert("No connection to internet",
-                                   isPresented: $appState.showNoInternetAlertForGrey) {
-                                Button("Open settings") { appState.openSettings() }
-                                Button("Cancel", role: .cancel) { }
-                            } message: {
-                                Text("To continue: turn on celullar data and come back to app")
-                            }
-                        }
-                        .onAppear {
-                            appState.bootstrap()
-                            
-                            // Обновляем статус разрешений при появлении экрана
-                            notificationService.updatePermissionStatus()
-                            
-                            // Логируем Player ID для отладки с задержкой
-                            Task {
-                                try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 секунды
-                                
-                                await MainActor.run {
-                                    if let playerId = notificationService.currentPlayerId {
-                                        print("🔔 Current OneSignal Player ID: \(playerId)")
-                                    } else {
-                                        print("🔔 OneSignal Player ID еще не доступен")
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            .alert("No connection to internet",
-                   isPresented: $appState.showNoInternetAlertForGrey) {
-                Button("Open settings") { appState.openSettings() }
-                Button("Cancel", role: .cancel) { }
-            } message: {
-                Text("To continue: turn on celullar data and come back to app")
-            }
+            contentForMode
+        }
+        .alert("No connection to internet",
+               isPresented: $appState.showNoInternetAlertForGrey) {
+            Button("Open settings") { appState.openSettings() }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("To continue: turn on celullar data and come back to app")
         }
         .onAppear {
             appState.bootstrap()
-            
-            // Обновляем статус разрешений при появлении экрана
             notificationService.updatePermissionStatus()
+            logPlayerIdWithDelay()
+        }
+    }
+    
+    // MARK: - Логика выбора режима (white/grey)
+    @ViewBuilder
+    private var contentForMode: some View {
+        switch appState.mode {
+        case .none:
+            ProgressView()
             
-            // Логируем Player ID для отладки с задержкой
-            Task {
-                try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 секунды
-                
-                await MainActor.run {
-                    if let playerId = notificationService.currentPlayerId {
-                        print("🔔 Current OneSignal Player ID: \(playerId)")
-                    } else {
-                        print("🔔 OneSignal Player ID еще не доступен")
-                    }
+        case .some(.white):
+            nativeContentView
+                .onAppear {
+                    simulateLoading()
                 }
+            
+        case .some(.grey):
+            if let url = appState.savedGreyURL {
+                WebContainerView(initialURL: url)
+            } else {
+                // Fallback на нативный контент если URL недоступен
+                nativeContentView
+                    .onAppear {
+                        simulateLoading()
+                    }
             }
         }
     }
     
+    // MARK: - Нативный контент (Loading → Onboarding → MainHub)
+    @ViewBuilder
+    private var nativeContentView: some View {
+        ZStack {
+            if isLoading {
+                LoadingView(progress: loadingProgress)
+                    .transition(.opacity)
+            } else if !gameManager.hasCompletedOnboarding {
+                OnboardingView(gameManager: gameManager)
+                    .transition(.opacity)
+            } else {
+                MainHubView(gameManager: gameManager)
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.4), value: isLoading)
+        .animation(.easeInOut(duration: 0.4), value: gameManager.hasCompletedOnboarding)
+    }
+    
+    // MARK: - Helpers
     private func simulateLoading() {
         // Simulate brief loading for polish
         Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
@@ -401,6 +91,20 @@ struct ContentView: View {
                 timer.invalidate()
                 withAnimation {
                     isLoading = false
+                }
+            }
+        }
+    }
+    
+    private func logPlayerIdWithDelay() {
+        Task {
+            try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 секунды
+            
+            await MainActor.run {
+                if let playerId = notificationService.currentPlayerId {
+                    print("🔔 Current OneSignal Player ID: \(playerId)")
+                } else {
+                    print("🔔 OneSignal Player ID еще не доступен")
                 }
             }
         }
