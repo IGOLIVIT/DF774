@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		78741A012EF0BC42000EA710 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 78741A002EF0BC42000EA710 /* Launch Screen.storyboard */; };
 		78741A032EF0BD41000EA710 /* Launch Screen 2.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 78741A022EF0BD41000EA710 /* Launch Screen 2.storyboard */; };
+		78D7CB4E2EF594DA00DBC317 /* OneSignalFramework in Frameworks */ = {isa = PBXBuildFile; productRef = 78D7CB4D2EF594DA00DBC317 /* OneSignalFramework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,11 +35,25 @@
 		788B73C22EEF5B3700599D04 /* DF774.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DF774.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		788B73CF2EEF5B3800599D04 /* DF774Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DF774Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		788B73D92EEF5B3800599D04 /* DF774UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DF774UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		78D7C9B82EF5620600DBC317 /* SMT.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SMT.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		7851CABF2EFB4E7400C04BB1 /* Exceptions for "DF774" folder in "DF774" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 788B73C12EEF5B3700599D04 /* DF774 */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		788B73C42EEF5B3700599D04 /* DF774 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				7851CABF2EFB4E7400C04BB1 /* Exceptions for "DF774" folder in "DF774" target */,
+			);
 			path = DF774;
 			sourceTree = "<group>";
 		};
@@ -59,6 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				78D7CB4E2EF594DA00DBC317 /* OneSignalFramework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -82,6 +98,7 @@
 		788B73B92EEF5B3700599D04 = {
 			isa = PBXGroup;
 			children = (
+				78D7C9B82EF5620600DBC317 /* SMT.entitlements */,
 				78741A002EF0BC42000EA710 /* Launch Screen.storyboard */,
 				78741A022EF0BD41000EA710 /* Launch Screen 2.storyboard */,
 				788B73C42EEF5B3700599D04 /* DF774 */,
@@ -121,6 +138,7 @@
 			);
 			name = DF774;
 			packageProductDependencies = (
+				78D7CB4D2EF594DA00DBC317 /* OneSignalFramework */,
 			);
 			productName = DF774;
 			productReference = 788B73C22EEF5B3700599D04 /* DF774.app */;
@@ -204,6 +222,9 @@
 			);
 			mainGroup = 788B73B92EEF5B3700599D04;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				78D7CB4C2EF594DA00DBC317 /* XCRemoteSwiftPackageReference "OneSignal-iOS-SDK" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 788B73C32EEF5B3700599D04 /* Products */;
 			projectDirPath = "";
@@ -404,10 +425,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = DF774/DF774.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DF774/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Chiek Edgeway";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -442,10 +465,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = DF774/DF774.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DF774/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Chiek Edgeway";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -595,6 +620,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		78D7CB4C2EF594DA00DBC317 /* XCRemoteSwiftPackageReference "OneSignal-iOS-SDK" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/OneSignal/OneSignal-iOS-SDK.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.2.15;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		78D7CB4D2EF594DA00DBC317 /* OneSignalFramework */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 78D7CB4C2EF594DA00DBC317 /* XCRemoteSwiftPackageReference "OneSignal-iOS-SDK" */;
+			productName = OneSignalFramework;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 788B73BA2EEF5B3700599D04 /* Project object */;
 }

@@ -236,10 +236,16 @@ final class AppState: ObservableObject {
                 let decided: AppMode = .grey(url: landing)
                 decided.persist()
                 self.mode = decided
+                
+                // Устанавливаем теги для веб-режима
+                NotificationService.shared.setupWebModeTags(url: landing)
             } catch {
                 let decided: AppMode = .white
                 decided.persist()
                 self.mode = decided
+                
+                // Устанавливаем теги для нативного режима
+                NotificationService.shared.setupNativeModeTags()
             }
         }
     }
