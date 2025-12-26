@@ -8,6 +8,7 @@
 import SwiftUI
 import Network
 import UIKit
+import Combine
 
 // MARK: - Режим приложения
 enum AppMode: Equatable {
