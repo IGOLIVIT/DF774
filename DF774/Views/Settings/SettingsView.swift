@@ -38,22 +38,18 @@ struct SettingsView: View {
                 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
-                        // Overview stats
                         overviewSection
                             .opacity(animateContent ? 1 : 0)
                             .offset(y: animateContent ? 0 : 20)
                         
-                        // Game-specific stats
                         gameStatsSection
                             .opacity(animateContent ? 1 : 0)
                             .offset(y: animateContent ? 0 : 20)
                         
-                        // Badges section
                         badgesSection
                             .opacity(animateContent ? 1 : 0)
                             .offset(y: animateContent ? 0 : 20)
                         
-                        // Reset section
                         resetSection
                             .opacity(animateContent ? 1 : 0)
                             .offset(y: animateContent ? 0 : 20)
@@ -99,33 +95,10 @@ struct SettingsView: View {
                 GridItem(.flexible(), spacing: 12),
                 GridItem(.flexible(), spacing: 12)
             ], spacing: 12) {
-                StatisticCard(
-                    icon: "play.circle.fill",
-                    value: "\(gameManager.playerStats.totalSessions)",
-                    label: "Total Sessions",
-                    color: .warmGold
-                )
-                
-                StatisticCard(
-                    icon: "checkmark.circle.fill",
-                    value: "\(gameManager.totalCompletedLevels)",
-                    label: "Levels Completed",
-                    color: .successGreen
-                )
-                
-                StatisticCard(
-                    icon: "flame.fill",
-                    value: "\(gameManager.playerStats.bestStreak)",
-                    label: "Best Streak",
-                    color: .mutedAmber
-                )
-                
-                StatisticCard(
-                    icon: "clock.fill",
-                    value: gameManager.playerStats.formattedPlayTime,
-                    label: "Total Play Time",
-                    color: .warmGold
-                )
+                StatisticCard(icon: "play.circle.fill", value: "\(gameManager.playerStats.totalSessions)", label: "Total Sessions", color: .warmGold)
+                StatisticCard(icon: "checkmark.circle.fill", value: "\(gameManager.totalCompletedLevels)", label: "Levels Completed", color: .successGreen)
+                StatisticCard(icon: "flame.fill", value: "\(gameManager.playerStats.bestStreak)", label: "Best Streak", color: .mutedAmber)
+                StatisticCard(icon: "clock.fill", value: gameManager.playerStats.formattedPlayTime, label: "Total Play Time", color: .warmGold)
             }
         }
     }
@@ -144,8 +117,7 @@ struct SettingsView: View {
                         gameType: gameType,
                         completedLevels: gameManager.getProgress(for: gameType).filter { $0.isCompleted }.count,
                         totalLevels: gameType.levelCount,
-                        gamesPlayed: gameManager.playerStats.gamesPlayed[gameType] ?? 0,
-                        highestLevel: gameManager.playerStats.highestLevelReached[gameType] ?? 0
+                        gamesPlayed: gameManager.playerStats.gamesPlayed[gameType] ?? 0
                     )
                 }
             }
@@ -258,7 +230,6 @@ struct GameStatRow: View {
     let completedLevels: Int
     let totalLevels: Int
     let gamesPlayed: Int
-    let highestLevel: Int
     
     private var progress: Double {
         Double(completedLevels) / Double(totalLevels)
@@ -266,7 +237,6 @@ struct GameStatRow: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            // Icon
             ZStack {
                 Circle()
                     .fill(Color.warmGold.opacity(0.15))
@@ -277,13 +247,11 @@ struct GameStatRow: View {
                     .foregroundColor(.warmGold)
             }
             
-            // Info
             VStack(alignment: .leading, spacing: 6) {
                 Text(gameType.rawValue)
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
                     .foregroundColor(.softCream)
                 
-                // Progress bar
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
                         RoundedRectangle(cornerRadius: 3)
@@ -298,7 +266,6 @@ struct GameStatRow: View {
                 .frame(height: 6)
             }
             
-            // Stats
             VStack(alignment: .trailing, spacing: 4) {
                 Text("\(completedLevels)/\(totalLevels)")
                     .font(.system(size: 14, weight: .bold, design: .rounded))
@@ -328,16 +295,8 @@ struct BadgeDisplayView: View {
                 Circle()
                     .fill(
                         isEarned ?
-                        LinearGradient(
-                            colors: [.warmGold, .mutedAmber],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ) :
-                        LinearGradient(
-                            colors: [.darkSurface, .darkSurface],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
+                        LinearGradient(colors: [.warmGold, .mutedAmber], startPoint: .topLeading, endPoint: .bottomTrailing) :
+                        LinearGradient(colors: [.darkSurface, .darkSurface], startPoint: .topLeading, endPoint: .bottomTrailing)
                     )
                     .frame(width: 56, height: 56)
                     .shadow(color: isEarned ? .warmGold.opacity(0.4) : .clear, radius: 8, x: 0, y: 4)
@@ -361,4 +320,3 @@ struct BadgeDisplayView: View {
 #Preview {
     SettingsView(gameManager: GameManager.shared)
 }
-

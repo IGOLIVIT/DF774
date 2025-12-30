@@ -48,7 +48,6 @@ class GameManager: ObservableObject {
            let progress = try? JSONDecoder().decode([String: LevelProgress].self, from: progressData) {
             self.levelProgress = progress
         } else {
-            // Initialize empty dict first, then populate
             var defaultProgress: [String: LevelProgress] = [:]
             for gameType in GameType.allCases {
                 let levels = LevelProgress.defaultLevels(for: gameType)
@@ -68,15 +67,6 @@ class GameManager: ObservableObject {
     }
     
     // MARK: - Progress Management
-    private func initializeDefaultProgress() {
-        for gameType in GameType.allCases {
-            let levels = LevelProgress.defaultLevels(for: gameType)
-            for level in levels {
-                levelProgress[level.id] = level
-            }
-        }
-    }
-    
     func getProgress(for gameType: GameType) -> [LevelProgress] {
         (1...gameType.levelCount).compactMap { level in
             let key = "\(gameType.rawValue)_\(level)"
@@ -106,12 +96,10 @@ class GameManager: ObservableObject {
                     levelProgress[nextKey] = nextLevel
                 }
                 
-                // Update stats only on first completion
                 playerStats.totalLevelsCompleted += 1
                 playerStats.currentStreak += 1
                 playerStats.bestStreak = max(playerStats.bestStreak, playerStats.currentStreak)
                 
-                // Update highest level
                 let currentHighest = playerStats.highestLevelReached[gameType] ?? 0
                 playerStats.highestLevelReached[gameType] = max(currentHighest, level)
                 
@@ -145,22 +133,18 @@ class GameManager: ObservableObject {
     
     // MARK: - Badge System
     private func checkForBadges() {
-        // First Step
         if playerStats.totalLevelsCompleted >= 1 {
             earnedBadges.insert(.firstStep)
         }
         
-        // Committed
         if playerStats.totalLevelsCompleted >= 10 {
             earnedBadges.insert(.committed)
         }
         
-        // Focused
         if playerStats.bestStreak >= 5 {
             earnedBadges.insert(.focused)
         }
         
-        // Relentless - complete all levels in one game
         for gameType in GameType.allCases {
             let progressList = getProgress(for: gameType)
             if progressList.allSatisfy({ $0.isCompleted }) {
@@ -169,7 +153,6 @@ class GameManager: ObservableObject {
             }
         }
         
-        // Master - complete all games on Intense
         let allCompleted = GameType.allCases.allSatisfy { gameType in
             let progress = getProgress(for: gameType)
             return progress.allSatisfy { $0.isCompleted }
@@ -184,8 +167,15 @@ class GameManager: ObservableObject {
         hasCompletedOnboarding = false
         playerStats = PlayerStats()
         earnedBadges = []
-        levelProgress = [:]
-        initializeDefaultProgress()
+        
+        var defaultProgress: [String: LevelProgress] = [:]
+        for gameType in GameType.allCases {
+            let levels = LevelProgress.defaultLevels(for: gameType)
+            for level in levels {
+                defaultProgress[level.id] = level
+            }
+        }
+        levelProgress = defaultProgress
         saveState()
     }
     
@@ -221,4 +211,3 @@ class GameManager: ObservableObject {
         return Double(completed) / Double(gameType.levelCount) * 100
     }
 }
-

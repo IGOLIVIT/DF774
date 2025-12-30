@@ -156,21 +156,10 @@ enum MasteryBadge: String, CaseIterable, Codable, Identifiable {
         case .perfectionist: return "sparkles"
         }
     }
-    
-    var requiredProgress: Int {
-        switch self {
-        case .firstStep: return 1
-        case .committed: return 10
-        case .focused: return 5
-        case .relentless: return 12
-        case .master: return 36
-        case .perfectionist: return 100
-        }
-    }
 }
 
 // MARK: - Game State
-struct GameState: Codable {
+struct GameState {
     var currentLevel: Int = 1
     var score: Int = 0
     var lives: Int = 3
@@ -178,7 +167,7 @@ struct GameState: Codable {
     var isCompleted: Bool = false
 }
 
-// MARK: - Onboarding State
+// MARK: - Onboarding Slide
 struct OnboardingSlide: Identifiable {
     let id = UUID()
     let icon: String
@@ -186,4 +175,3 @@ struct OnboardingSlide: Identifiable {
     let description: String
     let gradientColors: [Color]
 }
-

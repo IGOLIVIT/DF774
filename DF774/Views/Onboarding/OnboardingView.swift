@@ -42,7 +42,6 @@ struct OnboardingView: View {
             AppBackground(intensity: 0.8)
             
             VStack(spacing: 0) {
-                // Page content
                 TabView(selection: $currentPage) {
                     ForEach(Array(slides.enumerated()), id: \.offset) { index, slide in
                         OnboardingSlideView(slide: slide, isAnimating: isAnimating && currentPage == index)
@@ -52,7 +51,6 @@ struct OnboardingView: View {
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.easeInOut(duration: 0.3), value: currentPage)
                 
-                // Bottom section
                 VStack(spacing: 24) {
                     // Page indicators
                     HStack(spacing: 10) {
@@ -66,29 +64,27 @@ struct OnboardingView: View {
                     
                     // Action buttons
                     if currentPage == slides.count - 1 {
-                        Button(action: completeOnboarding) {
-                            Text("Begin Journey")
+                        Button("Begin Journey") {
+                            completeOnboarding()
                         }
                         .buttonStyle(PrimaryButtonStyle())
-                        .transition(.opacity.combined(with: .scale(scale: 0.95)))
                     } else {
-                        Button(action: nextPage) {
-                            Text("Continue")
+                        Button("Continue") {
+                            nextPage()
                         }
                         .buttonStyle(PrimaryButtonStyle())
                     }
                     
-                    // Skip button (only shown on first pages)
+                    // Skip button
                     if currentPage < slides.count - 1 {
-                        Button(action: completeOnboarding) {
-                            Text("Skip")
-                                .font(.system(size: 15, weight: .medium, design: .rounded))
-                                .foregroundColor(.softCream.opacity(0.6))
+                        Button("Skip") {
+                            completeOnboarding()
                         }
+                        .font(.system(size: 15, weight: .medium, design: .rounded))
+                        .foregroundColor(.softCream.opacity(0.6))
                         .padding(.bottom, 8)
                     } else {
-                        Spacer()
-                            .frame(height: 40)
+                        Spacer().frame(height: 40)
                     }
                 }
                 .padding(.horizontal, 24)
@@ -115,7 +111,7 @@ struct OnboardingView: View {
     }
 }
 
-// MARK: - Individual Slide View
+// MARK: - Onboarding Slide View
 struct OnboardingSlideView: View {
     let slide: OnboardingSlide
     let isAnimating: Bool
@@ -131,7 +127,6 @@ struct OnboardingSlideView: View {
             
             // Icon with glow
             ZStack {
-                // Outer glow
                 Circle()
                     .fill(
                         RadialGradient(
@@ -144,7 +139,6 @@ struct OnboardingSlideView: View {
                     .frame(width: 160, height: 160)
                     .blur(radius: 20)
                 
-                // Icon background
                 Circle()
                     .fill(
                         LinearGradient(
@@ -156,7 +150,6 @@ struct OnboardingSlideView: View {
                     .frame(width: 120, height: 120)
                     .shadow(color: slide.gradientColors[0].opacity(0.5), radius: 20, x: 0, y: 10)
                 
-                // Icon
                 Image(systemName: slide.icon)
                     .font(.system(size: 48, weight: .semibold))
                     .foregroundColor(.deepCharcoal)
@@ -164,7 +157,6 @@ struct OnboardingSlideView: View {
             .scaleEffect(iconScale)
             .opacity(iconOpacity)
             
-            // Text content
             VStack(spacing: 16) {
                 Text(slide.title)
                     .font(.system(size: 28, weight: .bold, design: .rounded))
@@ -187,10 +179,8 @@ struct OnboardingSlideView: View {
         .onAppear {
             animateIn()
         }
-        .onChange(of: isAnimating) { newValue in
-            if newValue {
-                animateIn()
-            }
+        .onChange(of: isAnimating) { _, newValue in
+            if newValue { animateIn() }
         }
     }
     
@@ -215,4 +205,3 @@ struct OnboardingSlideView: View {
 #Preview {
     OnboardingView(gameManager: GameManager.shared)
 }
-

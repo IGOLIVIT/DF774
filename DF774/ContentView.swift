@@ -4,33 +4,13 @@
 //
 
 import SwiftUI
-import UserNotifications
 
 struct ContentView: View {
-    
-    @ObservedObject private var gameManager = GameManager.shared
+    @StateObject private var gameManager = GameManager.shared
     @State private var isLoading = true
     @State private var loadingProgress: Double = 0
     
-    @AppStorage("onboarding_completed") private var onboardingCompleted = false
-    
-
-    
     var body: some View {
-        ZStack {
-            nativeContentView
-        }
-        .onAppear {
-            simulateLoading()
-        }
-    }
-    
-    // MARK: - Логика выбора режима (white/grey)
-
-    
-    // MARK: - Нативный контент (Loading → Onboarding → MainHub)
-    @ViewBuilder
-    private var nativeContentView: some View {
         ZStack {
             if isLoading {
                 LoadingView(progress: loadingProgress)
@@ -45,11 +25,12 @@ struct ContentView: View {
         }
         .animation(.easeInOut(duration: 0.4), value: isLoading)
         .animation(.easeInOut(duration: 0.4), value: gameManager.hasCompletedOnboarding)
+        .onAppear {
+            startLoading()
+        }
     }
     
-    // MARK: - Helpers
-    private func simulateLoading() {
-        // Simulate brief loading for polish
+    private func startLoading() {
         Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
             loadingProgress += 0.04
             if loadingProgress >= 1.0 {
@@ -60,8 +41,6 @@ struct ContentView: View {
             }
         }
     }
-    
- 
 }
 
 // MARK: - Loading View
@@ -76,8 +55,7 @@ struct LoadingView: View {
             VStack(spacing: 40) {
                 // Animated icon
                 ZStack {
-                    // Outer glow rings
-                    ForEach(0..<3) { index in
+                    ForEach(0..<3, id: \.self) { index in
                         Circle()
                             .stroke(
                                 Color.warmGold.opacity(0.15 - Double(index) * 0.05),
@@ -93,7 +71,6 @@ struct LoadingView: View {
                             )
                     }
                     
-                    // Main circle
                     Circle()
                         .fill(
                             LinearGradient(
@@ -105,7 +82,6 @@ struct LoadingView: View {
                         .frame(width: 80, height: 80)
                         .shadow(color: .warmGold.opacity(0.5), radius: 20, x: 0, y: 10)
                     
-                    // Arrow icon
                     Image(systemName: "arrow.up.forward")
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(.deepCharcoal)
@@ -134,7 +110,7 @@ struct LoadingView: View {
                                     )
                                 )
                                 .frame(width: geometry.size.width * progress, height: 6)
-                                .shadow(color: .warmGold.opacity(0.5), radius: 4, x: 0, y: 0)
+                                .shadow(color: .warmGold.opacity(0.5), radius: 4)
                         }
                     }
                     .frame(height: 6)
@@ -151,8 +127,6 @@ struct LoadingView: View {
         }
     }
 }
-
-
 
 #Preview {
     ContentView()

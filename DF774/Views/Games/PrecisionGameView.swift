@@ -2,10 +2,6 @@
 //  PrecisionGameView.swift
 //  DF774
 //
-//  A timing-based game where a marker sweeps across a gauge.
-//  Tap at exactly the right moment to hit the target zone.
-//  Higher levels have smaller target zones.
-//
 
 import SwiftUI
 
@@ -15,252 +11,218 @@ struct PrecisionGameView: View {
     @Binding var gameState: GameState
     let onComplete: () -> Void
     
-    // Game configuration
-    private var targetZoneSize: Double { 
-        max(0.08, 0.25 - (Double(level) * 0.015)) * (difficulty == .calm ? 1.5 : difficulty == .intense ? 0.7 : 1.0)
-    }
-    private var sweepSpeed: Double { 
-        (1.2 + Double(level) * 0.1) / difficulty.timeMultiplier
-    }
-    private var requiredHits: Int { min(3 + level / 2, 8) }
+    // Configuration
+    private var targetZoneSize: CGFloat { CGFloat(60 - level * 3).clamped(to: 20...50) }
+    private var indicatorSpeed: Double { (1.5 + Double(level) * 0.2) * (1 / difficulty.timeMultiplier) }
+    private var roundsToComplete: Int { min(3 + level / 3, 6) }
     
-    @State private var markerPosition: Double = 0
-    @State private var targetStart: Double = 0.3
-    @State private var isMovingRight = true
-    @State private var currentHits: Int = 0
-    @State private var currentMisses: Int = 0
-    @State private var showFeedback = false
-    @State private var feedbackIsSuccess = false
+    @State private var currentRound: Int = 1
+    @State private var indicatorPosition: CGFloat = 0
+    @State private var movingRight = true
+    @State private var targetZoneStart: CGFloat = 0.3
     @State private var isRunning = true
-    @State private var timer: Timer?
+    @State private var showRoundResult = false
+    @State private var roundSuccess = false
+    
+    let timer = Timer.publish(every: 0.016, on: .main, in: .common).autoconnect()
     
     var body: some View {
         VStack(spacing: 24) {
-            // Stats row
+            // Header
             HStack {
                 LivesIndicator(lives: gameState.lives, maxLives: 3)
                 
                 Spacer()
                 
-                HStack(spacing: 16) {
-                    // Hits counter
-                    HStack(spacing: 6) {
-                        Image(systemName: "target")
-                            .font(.system(size: 14))
-                            .foregroundColor(.successGreen)
-                        Text("\(currentHits)/\(requiredHits)")
-                            .font(.system(size: 16, weight: .bold, design: .rounded))
-                            .foregroundColor(.successGreen)
+                HStack(spacing: 4) {
+                    ForEach(1...roundsToComplete, id: \.self) { round in
+                        Circle()
+                            .fill(round < currentRound ? Color.successGreen :
+                                  round == currentRound ? Color.warmGold : Color.darkSurface)
+                            .frame(width: 12, height: 12)
                     }
                 }
             }
             .padding(.horizontal, 20)
             
+            Text("Round \(currentRound) of \(roundsToComplete)")
+                .font(.system(size: 14, weight: .medium, design: .rounded))
+                .foregroundColor(.softCream.opacity(0.6))
+            
             Spacer()
             
-            // Main gauge
-            VStack(spacing: 40) {
-                // Visual gauge
-                ZStack {
-                    // Outer ring
-                    Circle()
-                        .stroke(Color.darkSurface, lineWidth: 24)
-                        .frame(width: 260, height: 260)
-                    
-                    // Target zone arc
-                    Circle()
-                        .trim(from: CGFloat(targetStart), to: CGFloat(targetStart + targetZoneSize))
-                        .stroke(
-                            LinearGradient(
-                                colors: [.successGreen.opacity(0.8), .successGreen],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            ),
-                            style: StrokeStyle(lineWidth: 24, lineCap: .round)
-                        )
-                        .frame(width: 260, height: 260)
-                        .rotationEffect(.degrees(-90))
-                        .shadow(color: .successGreen.opacity(0.5), radius: 8, x: 0, y: 0)
-                    
-                    // Marker
-                    Circle()
-                        .fill(Color.warmGold)
-                        .frame(width: 20, height: 20)
-                        .shadow(color: .warmGold.opacity(0.8), radius: 8, x: 0, y: 0)
-                        .offset(y: -130)
-                        .rotationEffect(.degrees(markerPosition * 360))
-                    
-                    // Center display
-                    VStack(spacing: 8) {
-                        Text("\(currentHits)")
-                            .font(.system(size: 56, weight: .bold, design: .rounded))
-                            .foregroundColor(.warmGold)
-                        
-                        Text("of \(requiredHits)")
-                            .font(.system(size: 16, weight: .medium, design: .rounded))
-                            .foregroundColor(.softCream.opacity(0.6))
-                    }
-                    
-                    // Feedback flash
-                    if showFeedback {
-                        Circle()
-                            .fill(feedbackIsSuccess ? Color.successGreen.opacity(0.3) : Color.mutedAmber.opacity(0.3))
-                            .frame(width: 200, height: 200)
-                            .transition(.scale.combined(with: .opacity))
-                    }
-                }
+            // Instructions
+            VStack(spacing: 8) {
+                Text("Stop in the zone!")
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .foregroundColor(.softCream)
                 
-                // Linear gauge representation
-                GeometryReader { geometry in
-                    ZStack(alignment: .leading) {
-                        // Background
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.darkSurface)
-                            .frame(height: 40)
-                        
-                        // Target zone
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.successGreen.opacity(0.6))
-                            .frame(width: geometry.size.width * targetZoneSize, height: 40)
-                            .offset(x: geometry.size.width * targetStart)
-                        
-                        // Marker
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Color.warmGold)
-                            .frame(width: 6, height: 50)
-                            .shadow(color: .warmGold.opacity(0.8), radius: 4, x: 0, y: 0)
-                            .offset(x: geometry.size.width * markerPosition - 3)
-                    }
+                Text("Tap when the indicator is in the gold zone")
+                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .foregroundColor(.softCream.opacity(0.6))
+            }
+            
+            // Precision bar
+            GeometryReader { geometry in
+                let barWidth = geometry.size.width - 40
+                let zoneWidth = barWidth * (targetZoneSize / 200)
+                let zonePosition = barWidth * targetZoneStart
+                
+                ZStack(alignment: .leading) {
+                    // Background bar
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.darkSurface)
+                        .frame(height: 24)
+                    
+                    // Target zone
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color.warmGold.opacity(0.4))
+                        .frame(width: zoneWidth, height: 20)
+                        .offset(x: zonePosition + 2)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.warmGold, lineWidth: 2)
+                                .frame(width: zoneWidth, height: 20)
+                                .offset(x: zonePosition + 2)
+                        )
+                    
+                    // Indicator
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(indicatorColor)
+                        .frame(width: 8, height: 32)
+                        .offset(x: barWidth * indicatorPosition - 4)
+                        .shadow(color: indicatorColor.opacity(0.6), radius: 8)
                 }
-                .frame(height: 50)
+                .frame(height: 32)
                 .padding(.horizontal, 20)
+            }
+            .frame(height: 40)
+            
+            Spacer()
+            
+            // Result feedback
+            if showRoundResult {
+                VStack(spacing: 12) {
+                    Image(systemName: roundSuccess ? "checkmark.circle.fill" : "xmark.circle.fill")
+                        .font(.system(size: 60))
+                        .foregroundColor(roundSuccess ? .successGreen : .mutedAmber)
+                    
+                    Text(roundSuccess ? "Perfect!" : "Missed!")
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundColor(roundSuccess ? .successGreen : .mutedAmber)
+                }
+                .transition(.scale.combined(with: .opacity))
             }
             
             Spacer()
             
             // Tap button
-            Button(action: attemptHit) {
-                ZStack {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [.warmGold, .mutedAmber],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
+            Button(action: stopIndicator) {
+                Text("TAP!")
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .foregroundColor(.deepCharcoal)
+                    .frame(width: 120, height: 120)
+                    .background(
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [.warmGold, .mutedAmber],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
                             )
-                        )
-                        .frame(width: 100, height: 100)
-                        .shadow(color: .warmGold.opacity(0.5), radius: 16, x: 0, y: 8)
-                    
-                    Text("TAP")
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
-                        .foregroundColor(.deepCharcoal)
-                }
+                            .shadow(color: .warmGold.opacity(0.5), radius: 16, x: 0, y: 8)
+                    )
             }
+            .disabled(!isRunning || showRoundResult)
+            .opacity(isRunning && !showRoundResult ? 1 : 0.5)
             .padding(.bottom, 40)
-            
-            // Instructions
-            Text("Tap when the marker is in the green zone")
-                .font(.system(size: 15, weight: .medium, design: .rounded))
-                .foregroundColor(.softCream.opacity(0.5))
-                .padding(.bottom, 20)
+        }
+        .onReceive(timer) { _ in
+            updateIndicator()
         }
         .onAppear {
-            startGame()
+            setupRound()
         }
-        .onDisappear {
-            timer?.invalidate()
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: showRoundResult)
+    }
+    
+    private var indicatorColor: Color {
+        let zoneEnd = targetZoneStart + (targetZoneSize / 200)
+        if indicatorPosition >= targetZoneStart && indicatorPosition <= zoneEnd {
+            return .successGreen
         }
+        return .warmGold
     }
     
-    private func startGame() {
-        randomizeTarget()
-        startSweep()
+    private func setupRound() {
+        indicatorPosition = 0
+        movingRight = true
+        isRunning = true
+        showRoundResult = false
+        targetZoneStart = CGFloat.random(in: 0.2...0.6)
     }
     
-    private func randomizeTarget() {
-        // Ensure target zone doesn't overflow
-        targetStart = Double.random(in: 0.1...(0.9 - targetZoneSize))
-    }
-    
-    private func startSweep() {
-        timer?.invalidate()
-        
-        timer = Timer.scheduledTimer(withTimeInterval: 0.016, repeats: true) { _ in
-            guard isRunning else { return }
-            
-            let step = 0.016 * sweepSpeed / 2.0
-            
-            if isMovingRight {
-                markerPosition += step
-                if markerPosition >= 1.0 {
-                    markerPosition = 1.0
-                    isMovingRight = false
-                }
-            } else {
-                markerPosition -= step
-                if markerPosition <= 0.0 {
-                    markerPosition = 0.0
-                    isMovingRight = true
-                }
-            }
-        }
-    }
-    
-    private func attemptHit() {
+    private func updateIndicator() {
         guard isRunning else { return }
         
-        let isInZone = markerPosition >= targetStart && markerPosition <= (targetStart + targetZoneSize)
+        let delta = CGFloat(indicatorSpeed * 0.016)
         
-        if isInZone {
-            // Success
-            currentHits += 1
-            gameState.score += Int(20 * difficulty.multiplier)
-            feedbackIsSuccess = true
-            
-            if currentHits >= requiredHits {
-                // Level complete
-                isRunning = false
-                timer?.invalidate()
-                gameState.isCompleted = true
-                gameState.score += Int(100 * difficulty.multiplier)
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    onComplete()
-                }
-                return
+        if movingRight {
+            indicatorPosition += delta
+            if indicatorPosition >= 1.0 {
+                movingRight = false
             }
-            
-            // Move target for next hit
-            randomizeTarget()
         } else {
-            // Miss
-            currentMisses += 1
-            gameState.lives -= 1
-            feedbackIsSuccess = false
+            indicatorPosition -= delta
+            if indicatorPosition <= 0 {
+                movingRight = true
+            }
+        }
+    }
+    
+    private func stopIndicator() {
+        isRunning = false
+        
+        let zoneEnd = targetZoneStart + (targetZoneSize / 200)
+        roundSuccess = indicatorPosition >= targetZoneStart && indicatorPosition <= zoneEnd
+        
+        withAnimation {
+            showRoundResult = true
+        }
+        
+        if roundSuccess {
+            gameState.score += Int(50 * difficulty.multiplier)
             
-            if gameState.lives <= 0 {
-                isRunning = false
-                timer?.invalidate()
-                gameState.isGameOver = true
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                if currentRound >= roundsToComplete {
+                    gameState.isCompleted = true
+                    gameState.score += Int(100 * difficulty.multiplier)
                     onComplete()
+                } else {
+                    currentRound += 1
+                    setupRound()
                 }
-                return
+            }
+        } else {
+            gameState.lives -= 1
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                if gameState.lives <= 0 {
+                    gameState.isGameOver = true
+                    onComplete()
+                } else {
+                    setupRound()
+                }
             }
         }
-        
-        // Show feedback
-        withAnimation(.easeOut(duration: 0.15)) {
-            showFeedback = true
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            withAnimation(.easeOut(duration: 0.15)) {
-                showFeedback = false
-            }
-        }
+    }
+}
+
+// MARK: - Comparable Extension
+extension Comparable {
+    func clamped(to limits: ClosedRange<Self>) -> Self {
+        return min(max(self, limits.lowerBound), limits.upperBound)
     }
 }
 
@@ -275,4 +237,3 @@ struct PrecisionGameView: View {
         )
     }
 }
-

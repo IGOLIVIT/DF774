@@ -2,10 +2,6 @@
 //  SequenceGameView.swift
 //  DF774
 //
-//  A pattern anticipation game where the player must predict
-//  which element comes next in a visual sequence.
-//  The sequence follows mathematical or visual patterns.
-//
 
 import SwiftUI
 
@@ -15,7 +11,7 @@ struct SequenceGameView: View {
     @Binding var gameState: GameState
     let onComplete: () -> Void
     
-    // Game configuration
+    // Configuration
     private var sequenceLength: Int { min(4 + level / 2, 8) }
     private var optionCount: Int { difficulty == .calm ? 3 : difficulty == .intense ? 5 : 4 }
     private var roundsToComplete: Int { min(3 + level / 3, 6) }
@@ -30,11 +26,7 @@ struct SequenceGameView: View {
     @State private var patternType: PatternType = .arithmetic
     
     enum PatternType: CaseIterable {
-        case arithmetic    // +2, +3, etc.
-        case geometric     // *2, etc.
-        case alternating   // A, B, A, B
-        case fibonacci     // Each is sum of previous two
-        case visual        // Shape patterns
+        case arithmetic, geometric, alternating, fibonacci
     }
     
     struct SequenceElement: Identifiable, Equatable {
@@ -42,21 +34,6 @@ struct SequenceGameView: View {
         let value: Int
         let displayValue: String
         let color: Color
-        let shape: SequenceShape
-        
-        enum SequenceShape: CaseIterable {
-            case circle, square, triangle, diamond, hexagon
-            
-            var systemImage: String {
-                switch self {
-                case .circle: return "circle.fill"
-                case .square: return "square.fill"
-                case .triangle: return "triangle.fill"
-                case .diamond: return "diamond.fill"
-                case .hexagon: return "hexagon.fill"
-                }
-            }
-        }
         
         static func == (lhs: SequenceElement, rhs: SequenceElement) -> Bool {
             lhs.value == rhs.value && lhs.displayValue == rhs.displayValue
@@ -71,11 +48,10 @@ struct SequenceGameView: View {
                 
                 Spacer()
                 
-                // Round indicator
                 HStack(spacing: 4) {
                     ForEach(1...roundsToComplete, id: \.self) { round in
                         Circle()
-                            .fill(round < currentRound ? Color.successGreen : 
+                            .fill(round < currentRound ? Color.successGreen :
                                   round == currentRound ? Color.warmGold : Color.darkSurface)
                             .frame(width: 12, height: 12)
                     }
@@ -95,21 +71,19 @@ struct SequenceGameView: View {
                     .font(.system(size: 18, weight: .semibold, design: .rounded))
                     .foregroundColor(.softCream)
                 
-                // Sequence items
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
                         ForEach(sequence) { element in
-                            SequenceItemView(element: element, isHighlighted: false)
+                            SequenceItemCell(element: element, isHighlighted: false)
                         }
                         
-                        // Question mark placeholder
                         ZStack {
                             RoundedRectangle(cornerRadius: 12)
                                 .stroke(Color.warmGold, style: StrokeStyle(lineWidth: 2, dash: [8, 4]))
                                 .frame(width: 60, height: 60)
                             
                             if let selected = selectedOption {
-                                SequenceItemView(element: selected, isHighlighted: true)
+                                SequenceItemCell(element: selected, isHighlighted: true)
                             } else {
                                 Text("?")
                                     .font(.system(size: 28, weight: .bold, design: .rounded))
@@ -141,7 +115,7 @@ struct SequenceGameView: View {
                     GridItem(.flexible(), spacing: 12)
                 ], spacing: 12) {
                     ForEach(options) { option in
-                        OptionButton(
+                        SequenceOptionButton(
                             element: option,
                             isSelected: selectedOption == option,
                             isCorrect: showResult && option == correctAnswer,
@@ -158,8 +132,8 @@ struct SequenceGameView: View {
             
             // Confirm button
             if selectedOption != nil && !showResult {
-                Button(action: confirmAnswer) {
-                    Text("Confirm")
+                Button("Confirm") {
+                    confirmAnswer()
                 }
                 .buttonStyle(PrimaryButtonStyle())
                 .padding(.horizontal, 40)
@@ -191,8 +165,6 @@ struct SequenceGameView: View {
             generateAlternatingSequence()
         case .fibonacci:
             generateFibonacciSequence()
-        case .visual:
-            generateVisualSequence()
         }
     }
     
@@ -203,21 +175,11 @@ struct SequenceGameView: View {
         
         for i in 0..<sequenceLength {
             let value = start + (i * step)
-            sequence.append(SequenceElement(
-                value: value,
-                displayValue: "\(value)",
-                color: colors[i % colors.count],
-                shape: .circle
-            ))
+            sequence.append(SequenceElement(value: value, displayValue: "\(value)", color: colors[i % colors.count]))
         }
         
         let correctValue = start + (sequenceLength * step)
-        correctAnswer = SequenceElement(
-            value: correctValue,
-            displayValue: "\(correctValue)",
-            color: colors[sequenceLength % colors.count],
-            shape: .circle
-        )
+        correctAnswer = SequenceElement(value: correctValue, displayValue: "\(correctValue)", color: colors[sequenceLength % colors.count])
         
         generateNumericOptions(correctValue: correctValue, step: step)
     }
@@ -229,21 +191,11 @@ struct SequenceGameView: View {
         
         for i in 0..<min(sequenceLength, 5) {
             let value = start * Int(pow(Double(multiplier), Double(i)))
-            sequence.append(SequenceElement(
-                value: value,
-                displayValue: "\(value)",
-                color: colors[i % colors.count],
-                shape: .square
-            ))
+            sequence.append(SequenceElement(value: value, displayValue: "\(value)", color: colors[i % colors.count]))
         }
         
         let correctValue = start * Int(pow(Double(multiplier), Double(min(sequenceLength, 5))))
-        correctAnswer = SequenceElement(
-            value: correctValue,
-            displayValue: "\(correctValue)",
-            color: colors[sequenceLength % colors.count],
-            shape: .square
-        )
+        correctAnswer = SequenceElement(value: correctValue, displayValue: "\(correctValue)", color: colors[sequenceLength % colors.count])
         
         generateNumericOptions(correctValue: correctValue, step: correctValue / 2)
     }
@@ -251,25 +203,14 @@ struct SequenceGameView: View {
     private func generateAlternatingSequence() {
         let values = [Int.random(in: 1...9), Int.random(in: 1...9)]
         let colors: [Color] = [.warmGold, .mutedAmber]
-        let shapes: [SequenceElement.SequenceShape] = [.circle, .diamond]
         
         for i in 0..<sequenceLength {
             let idx = i % 2
-            sequence.append(SequenceElement(
-                value: values[idx],
-                displayValue: "\(values[idx])",
-                color: colors[idx],
-                shape: shapes[idx]
-            ))
+            sequence.append(SequenceElement(value: values[idx], displayValue: "\(values[idx])", color: colors[idx]))
         }
         
         let correctIdx = sequenceLength % 2
-        correctAnswer = SequenceElement(
-            value: values[correctIdx],
-            displayValue: "\(values[correctIdx])",
-            color: colors[correctIdx],
-            shape: shapes[correctIdx]
-        )
+        correctAnswer = SequenceElement(value: values[correctIdx], displayValue: "\(values[correctIdx])", color: colors[correctIdx])
         
         generateNumericOptions(correctValue: values[correctIdx], step: 1)
     }
@@ -283,53 +224,18 @@ struct SequenceGameView: View {
         let colors: [Color] = [.warmGold, .successGreen, .mutedAmber]
         
         for i in 0..<sequenceLength {
-            sequence.append(SequenceElement(
-                value: fib[i],
-                displayValue: "\(fib[i])",
-                color: colors[i % colors.count],
-                shape: .hexagon
-            ))
+            sequence.append(SequenceElement(value: fib[i], displayValue: "\(fib[i])", color: colors[i % colors.count]))
         }
         
-        correctAnswer = SequenceElement(
-            value: fib[sequenceLength],
-            displayValue: "\(fib[sequenceLength])",
-            color: colors[sequenceLength % colors.count],
-            shape: .hexagon
-        )
+        correctAnswer = SequenceElement(value: fib[sequenceLength], displayValue: "\(fib[sequenceLength])", color: colors[sequenceLength % colors.count])
         
         generateNumericOptions(correctValue: fib[sequenceLength], step: fib[sequenceLength - 1])
-    }
-    
-    private func generateVisualSequence() {
-        let shapes = SequenceElement.SequenceShape.allCases.shuffled()
-        let colors: [Color] = [.warmGold, .mutedAmber, .successGreen].shuffled()
-        
-        for i in 0..<min(sequenceLength, shapes.count) {
-            sequence.append(SequenceElement(
-                value: i,
-                displayValue: "",
-                color: colors[i % colors.count],
-                shape: shapes[i]
-            ))
-        }
-        
-        let nextIdx = min(sequenceLength, shapes.count - 1)
-        correctAnswer = SequenceElement(
-            value: nextIdx,
-            displayValue: "",
-            color: colors[nextIdx % colors.count],
-            shape: shapes.count > nextIdx ? shapes[nextIdx] : shapes[0]
-        )
-        
-        generateVisualOptions()
     }
     
     private func generateNumericOptions(correctValue: Int, step: Int) {
         var opts: [SequenceElement] = []
         opts.append(correctAnswer!)
         
-        // Generate wrong options
         let wrongValues = [
             correctValue + step,
             correctValue - step,
@@ -340,31 +246,7 @@ struct SequenceGameView: View {
         ].filter { $0 != correctValue && $0 > 0 }.shuffled()
         
         for i in 0..<min(optionCount - 1, wrongValues.count) {
-            opts.append(SequenceElement(
-                value: wrongValues[i],
-                displayValue: "\(wrongValues[i])",
-                color: .warmGold,
-                shape: sequence.first?.shape ?? .circle
-            ))
-        }
-        
-        options = opts.shuffled()
-    }
-    
-    private func generateVisualOptions() {
-        var opts: [SequenceElement] = []
-        opts.append(correctAnswer!)
-        
-        let allShapes = SequenceElement.SequenceShape.allCases.filter { $0 != correctAnswer?.shape }
-        let colors: [Color] = [.warmGold, .mutedAmber, .successGreen]
-        
-        for i in 0..<min(optionCount - 1, allShapes.count) {
-            opts.append(SequenceElement(
-                value: i + 100,
-                displayValue: "",
-                color: colors[i % colors.count],
-                shape: allShapes[i]
-            ))
+            opts.append(SequenceElement(value: wrongValues[i], displayValue: "\(wrongValues[i])", color: .warmGold))
         }
         
         options = opts.shuffled()
@@ -386,7 +268,6 @@ struct SequenceGameView: View {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 if currentRound >= roundsToComplete {
-                    // Level complete
                     gameState.isCompleted = true
                     gameState.score += Int(100 * difficulty.multiplier)
                     onComplete()
@@ -410,8 +291,8 @@ struct SequenceGameView: View {
     }
 }
 
-// MARK: - Sequence Item View
-struct SequenceItemView: View {
+// MARK: - Sequence Item Cell
+struct SequenceItemCell: View {
     let element: SequenceGameView.SequenceElement
     let isHighlighted: Bool
     
@@ -422,21 +303,15 @@ struct SequenceItemView: View {
                 .frame(width: 56, height: 56)
                 .shadow(color: isHighlighted ? element.color.opacity(0.5) : .clear, radius: 8, x: 0, y: 4)
             
-            if element.displayValue.isEmpty {
-                Image(systemName: element.shape.systemImage)
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundColor(isHighlighted ? .deepCharcoal : element.color)
-            } else {
-                Text(element.displayValue)
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
-                    .foregroundColor(isHighlighted ? .deepCharcoal : element.color)
-            }
+            Text(element.displayValue)
+                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .foregroundColor(isHighlighted ? .deepCharcoal : element.color)
         }
     }
 }
 
 // MARK: - Option Button
-struct OptionButton: View {
+struct SequenceOptionButton: View {
     let element: SequenceGameView.SequenceElement
     let isSelected: Bool
     let isCorrect: Bool
@@ -455,15 +330,9 @@ struct OptionButton: View {
                             .stroke(borderColor, lineWidth: isSelected ? 2 : 0)
                     )
                 
-                if element.displayValue.isEmpty {
-                    Image(systemName: element.shape.systemImage)
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(foregroundColor)
-                } else {
-                    Text(element.displayValue)
-                        .font(.system(size: 26, weight: .bold, design: .rounded))
-                        .foregroundColor(foregroundColor)
-                }
+                Text(element.displayValue)
+                    .font(.system(size: 26, weight: .bold, design: .rounded))
+                    .foregroundColor(foregroundColor)
             }
         }
         .buttonStyle(PlainButtonStyle())
@@ -508,4 +377,3 @@ struct OptionButton: View {
         )
     }
 }
-

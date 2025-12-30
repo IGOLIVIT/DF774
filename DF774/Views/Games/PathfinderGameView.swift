@@ -2,10 +2,6 @@
 //  PathfinderGameView.swift
 //  DF774
 //
-//  A game about choosing safe paths through a grid.
-//  Navigate forward row by row, choosing which cell is safe.
-//  Wrong choices cost lives. Reach the end to complete the level.
-//
 
 import SwiftUI
 
@@ -15,311 +11,225 @@ struct PathfinderGameView: View {
     @Binding var gameState: GameState
     let onComplete: () -> Void
     
-    // Game configuration
-    private var gridColumns: Int { min(3 + (level / 4), 5) }
-    private var gridRows: Int { min(4 + level, 10) }
-    private var safePaths: Int { max(1, gridColumns - level / 3) }
+    // Configuration
+    private var gridSize: Int { min(3 + level / 4, 5) }
+    private var pathLength: Int { min(4 + level / 2, 8) }
+    private var showPathDuration: Double { 2.0 * difficulty.timeMultiplier }
     
-    @State private var currentRow: Int = 0
-    @State private var grid: [[CellState]] = []
-    @State private var revealedCells: Set<String> = []
-    @State private var playerPosition: Int = 0
-    @State private var isAnimating = false
-    @State private var showHint = false
-    @State private var hintCooldown = false
-    @State private var showingError = false
-    
-    enum CellState {
-        case safe
-        case danger
-        case unknown
-    }
+    @State private var correctPath: [Int] = []
+    @State private var playerPath: [Int] = []
+    @State private var isShowingPath = true
+    @State private var currentHighlight: Int = -1
+    @State private var showResult = false
+    @State private var roundSuccess = false
     
     var body: some View {
-        VStack(spacing: 20) {
-            // Lives display
+        VStack(spacing: 24) {
+            // Header
             HStack {
                 LivesIndicator(lives: gameState.lives, maxLives: 3)
-                
                 Spacer()
-                
-                // Hint button
-                Button(action: useHint) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "lightbulb.fill")
-                            .font(.system(size: 14))
-                        Text("Hint")
-                            .font(.system(size: 14, weight: .semibold, design: .rounded))
-                    }
-                    .foregroundColor(hintCooldown ? .softCream.opacity(0.3) : .warmGold)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 8)
-                    .background(
-                        Capsule()
-                            .fill(Color.darkSurface)
-                    )
-                }
-                .disabled(hintCooldown)
+                ScoreDisplay(score: gameState.score, label: "Score")
             }
+            .padding(.horizontal, 20)
+            
+            Spacer()
+            
+            // Instructions
+            VStack(spacing: 8) {
+                Text(isShowingPath ? "Watch the path!" : "Repeat the sequence")
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .foregroundColor(.softCream)
+                
+                Text(isShowingPath ? "Memorize which tiles light up" : "Tap tiles in the same order")
+                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .foregroundColor(.softCream.opacity(0.6))
+            }
+            
+            // Grid
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: gridSize), spacing: 12) {
+                ForEach(0..<(gridSize * gridSize), id: \.self) { index in
+                    PathTile(
+                        index: index,
+                        isHighlighted: currentHighlight == index,
+                        isSelected: playerPath.contains(index),
+                        isCorrect: showResult && correctPath.contains(index),
+                        isWrong: showResult && playerPath.contains(index) && !correctPath.contains(index)
+                    ) {
+                        selectTile(index)
+                    }
+                    .disabled(isShowingPath || showResult)
+                }
+            }
+            .padding(20)
+            .background(
+                RoundedRectangle(cornerRadius: 24)
+                    .fill(Color.darkSurface)
+            )
             .padding(.horizontal, 20)
             
             // Progress indicator
-            ProgressView(value: Double(currentRow), total: Double(gridRows))
-                .progressViewStyle(LinearProgressViewStyle(tint: .warmGold))
-                .padding(.horizontal, 20)
-            
-            Text("Row \(currentRow + 1) of \(gridRows)")
-                .font(.system(size: 14, weight: .medium, design: .rounded))
-                .foregroundColor(.softCream.opacity(0.6))
+            HStack(spacing: 6) {
+                ForEach(0..<pathLength, id: \.self) { index in
+                    Circle()
+                        .fill(index < playerPath.count ? Color.warmGold : Color.darkSurface)
+                        .frame(width: 12, height: 12)
+                        .overlay(
+                            Circle()
+                                .stroke(Color.warmGold.opacity(0.3), lineWidth: 1)
+                        )
+                }
+            }
+            .padding(.top, 16)
             
             Spacer()
             
-            // Game grid
-            VStack(spacing: 8) {
-                ForEach((0..<gridRows).reversed(), id: \.self) { row in
-                    HStack(spacing: 8) {
-                        ForEach(0..<gridColumns, id: \.self) { col in
-                            PathCell(
-                                state: cellDisplayState(row: row, col: col),
-                                isCurrentRow: row == currentRow,
-                                isRevealed: revealedCells.contains("\(row)-\(col)"),
-                                showHint: showHint && row == currentRow && grid[row][col] == .safe,
-                                action: { selectCell(row: row, col: col) }
-                            )
-                        }
-                    }
+            // Result
+            if showResult {
+                VStack(spacing: 12) {
+                    Image(systemName: roundSuccess ? "checkmark.circle.fill" : "xmark.circle.fill")
+                        .font(.system(size: 60))
+                        .foregroundColor(roundSuccess ? .successGreen : .mutedAmber)
+                    
+                    Text(roundSuccess ? "Correct!" : "Wrong path!")
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundColor(roundSuccess ? .successGreen : .mutedAmber)
                 }
+                .transition(.scale.combined(with: .opacity))
             }
-            .padding(.horizontal, 20)
             
             Spacer()
-            
-            // Instructions / Error message
-            Group {
-                if showingError {
-                    Text("Wrong path! Try again...")
-                        .font(.system(size: 15, weight: .semibold, design: .rounded))
-                        .foregroundColor(.mutedAmber)
-                } else {
-                    Text(currentRow == 0 ? "Choose a path to begin" : "Step carefully forward")
-                        .font(.system(size: 15, weight: .medium, design: .rounded))
-                        .foregroundColor(.softCream.opacity(0.5))
-                }
-            }
-            .padding(.bottom, 20)
-            .animation(.easeInOut(duration: 0.3), value: showingError)
         }
         .onAppear {
-            generateGrid()
+            generatePath()
+        }
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: currentHighlight)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: showResult)
+    }
+    
+    private func generatePath() {
+        correctPath = []
+        playerPath = []
+        showResult = false
+        isShowingPath = true
+        
+        var available = Array(0..<(gridSize * gridSize))
+        for _ in 0..<pathLength {
+            if let index = available.randomElement() {
+                correctPath.append(index)
+                available.removeAll { $0 == index }
+            }
+        }
+        
+        showPathSequence()
+    }
+    
+    private func showPathSequence() {
+        var delay = 0.5
+        
+        for (index, tile) in correctPath.enumerated() {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                withAnimation {
+                    currentHighlight = tile
+                }
+            }
+            delay += 0.6
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay - 0.2) {
+                withAnimation {
+                    if index == correctPath.count - 1 {
+                        currentHighlight = -1
+                        isShowingPath = false
+                    }
+                }
+            }
         }
     }
     
-    private func cellDisplayState(row: Int, col: Int) -> CellState {
-        if revealedCells.contains("\(row)-\(col)") {
-            return grid[row][col]
-        }
-        if row < currentRow {
-            return grid[row][col]
-        }
-        return .unknown
-    }
-    
-    private func generateGrid() {
-        grid = []
-        for _ in 0..<gridRows {
-            var rowCells: [CellState] = Array(repeating: .danger, count: gridColumns)
+    private func selectTile(_ index: Int) {
+        guard !isShowingPath && !showResult else { return }
+        guard !playerPath.contains(index) else { return }
+        
+        playerPath.append(index)
+        
+        // Check if wrong
+        let currentIndex = playerPath.count - 1
+        if correctPath[currentIndex] != index {
+            roundSuccess = false
+            gameState.lives -= 1
             
-            // Determine number of safe cells for this row based on difficulty
-            let safeCellCount: Int
-            switch difficulty {
-            case .calm:
-                safeCellCount = max(2, gridColumns - 1)
-            case .focused:
-                safeCellCount = max(1, gridColumns / 2)
-            case .intense:
-                safeCellCount = 1
+            withAnimation {
+                showResult = true
             }
             
-            // Place safe cells randomly
-            var safePositions = Set<Int>()
-            while safePositions.count < safeCellCount {
-                safePositions.insert(Int.random(in: 0..<gridColumns))
-            }
-            
-            for pos in safePositions {
-                rowCells[pos] = .safe
-            }
-            
-            grid.append(rowCells)
-        }
-    }
-    
-    private func selectCell(row: Int, col: Int) {
-        guard row == currentRow, !isAnimating else { return }
-        
-        isAnimating = true
-        revealedCells.insert("\(row)-\(col)")
-        showHint = false
-        
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-            playerPosition = col
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            if grid[row][col] == .safe {
-                // Safe choice
-                gameState.score += Int(10 * difficulty.multiplier)
-                
-                if currentRow >= gridRows - 1 {
-                    // Level complete
-                    gameState.isCompleted = true
-                    gameState.score += Int(50 * difficulty.multiplier)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                if gameState.lives <= 0 {
+                    gameState.isGameOver = true
                     onComplete()
                 } else {
-                    currentRow += 1
-                }
-                isAnimating = false
-            } else {
-                // Hit danger
-                gameState.lives -= 1
-                
-                // Reveal all cells in current row briefly
-                for c in 0..<gridColumns {
-                    revealedCells.insert("\(currentRow)-\(c)")
-                }
-                
-                if gameState.lives <= 0 {
-                    // Game over - show result after brief delay
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                        gameState.isGameOver = true
-                        onComplete()
-                    }
-                } else {
-                    // Still have lives - show error, then reset row after delay
-                    showingError = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-                        // Clear revealed cells for current row so player can try again
-                        for c in 0..<gridColumns {
-                            revealedCells.remove("\(currentRow)-\(c)")
-                        }
-                        showingError = false
-                        isAnimating = false
-                    }
+                    generatePath()
                 }
             }
-        }
-    }
-    
-    private func useHint() {
-        guard !hintCooldown else { return }
-        
-        showHint = true
-        hintCooldown = true
-        
-        // Hide hint after 1.5 seconds based on difficulty
-        let hintDuration = 1.5 * difficulty.timeMultiplier
-        DispatchQueue.main.asyncAfter(deadline: .now() + hintDuration) {
-            showHint = false
+            return
         }
         
-        // Cooldown before next hint
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
-            hintCooldown = false
+        // Check if complete
+        if playerPath.count == pathLength {
+            roundSuccess = true
+            gameState.score += Int(Double(pathLength * 20) * difficulty.multiplier)
+            
+            withAnimation {
+                showResult = true
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                gameState.isCompleted = true
+                gameState.score += Int(100 * difficulty.multiplier)
+                onComplete()
+            }
         }
     }
 }
 
-// MARK: - Path Cell
-struct PathCell: View {
-    let state: PathfinderGameView.CellState
-    let isCurrentRow: Bool
-    let isRevealed: Bool
-    let showHint: Bool
+// MARK: - Path Tile
+struct PathTile: View {
+    let index: Int
+    let isHighlighted: Bool
+    let isSelected: Bool
+    let isCorrect: Bool
+    let isWrong: Bool
     let action: () -> Void
-    
-    @State private var isPressed = false
     
     var body: some View {
         Button(action: action) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(backgroundColor)
-                    .shadow(color: shadowColor, radius: isCurrentRow ? 8 : 4, x: 0, y: 4)
-                
-                if isRevealed || state != .unknown {
-                    Image(systemName: iconName)
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(iconColor)
-                }
-                
-                if showHint {
-                    Circle()
-                        .stroke(Color.warmGold, lineWidth: 2)
-                        .scaleEffect(1.2)
-                        .opacity(0.8)
-                }
-            }
-            .frame(height: 50)
-            .scaleEffect(isPressed ? 0.92 : 1.0)
-            .opacity(isCurrentRow ? 1.0 : (state == .unknown ? 0.5 : 0.7))
+            RoundedRectangle(cornerRadius: 12)
+                .fill(tileColor)
+                .aspectRatio(1, contentMode: .fit)
+                .shadow(color: shadowColor, radius: isHighlighted ? 12 : 4, x: 0, y: 4)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(borderColor, lineWidth: isSelected ? 3 : 0)
+                )
         }
         .buttonStyle(PlainButtonStyle())
-        .disabled(!isCurrentRow || state != .unknown)
-        .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
-            withAnimation(.spring(response: 0.2, dampingFraction: 0.7)) {
-                isPressed = pressing && isCurrentRow
-            }
-        }, perform: {})
     }
     
-    private var backgroundColor: Color {
-        switch state {
-        case .safe where isRevealed:
-            return .successGreen
-        case .danger where isRevealed:
-            return .mutedAmber
-        case .unknown where isCurrentRow:
-            return .warmGold.opacity(0.3)
-        case .unknown:
-            return .darkSurface
-        case .safe:
-            return .successGreen.opacity(0.7)
-        case .danger:
-            return .mutedAmber.opacity(0.7)
-        }
+    private var tileColor: Color {
+        if isHighlighted { return .warmGold }
+        if isCorrect { return .successGreen.opacity(0.7) }
+        if isWrong { return .mutedAmber.opacity(0.7) }
+        if isSelected { return .warmGold.opacity(0.4) }
+        return .darkSurface.opacity(0.8)
+    }
+    
+    private var borderColor: Color {
+        if isSelected { return .warmGold }
+        return .clear
     }
     
     private var shadowColor: Color {
-        switch state {
-        case .safe where isRevealed:
-            return .successGreen.opacity(0.5)
-        case .danger where isRevealed:
-            return .mutedAmber.opacity(0.5)
-        case .unknown where isCurrentRow:
-            return .warmGold.opacity(0.3)
-        default:
-            return .clear
-        }
-    }
-    
-    private var iconName: String {
-        switch state {
-        case .safe:
-            return "checkmark"
-        case .danger:
-            return "xmark"
-        case .unknown:
-            return ""
-        }
-    }
-    
-    private var iconColor: Color {
-        switch state {
-        case .safe, .danger:
-            return .white
-        case .unknown:
-            return .clear
-        }
+        if isHighlighted { return .warmGold.opacity(0.6) }
+        return .clear
     }
 }
 
@@ -334,4 +244,3 @@ struct PathCell: View {
         )
     }
 }
-

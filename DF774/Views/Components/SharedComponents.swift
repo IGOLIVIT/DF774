@@ -5,10 +5,7 @@
 
 import SwiftUI
 
-// Note: Colors are auto-generated from Assets.xcassets by Xcode
-// Use Color.deepCharcoal, Color.warmGold, etc. directly
-
-// MARK: - Background Gradient
+// MARK: - App Background
 struct AppBackground: View {
     var intensity: Double = 1.0
     
@@ -17,7 +14,6 @@ struct AppBackground: View {
             Color.deepCharcoal
                 .ignoresSafeArea()
             
-            // Ambient glow effects
             GeometryReader { geometry in
                 Circle()
                     .fill(
@@ -96,7 +92,7 @@ struct SecondaryButtonStyle: ButtonStyle {
     }
 }
 
-// MARK: - Card Style
+// MARK: - Card Modifier
 struct CardModifier: ViewModifier {
     var padding: CGFloat = 20
     
@@ -121,27 +117,7 @@ extension View {
     }
 }
 
-// MARK: - Glow Text
-struct GlowText: View {
-    let text: String
-    var font: Font = .system(size: 32, weight: .bold, design: .rounded)
-    var color: Color = .warmGold
-    
-    var body: some View {
-        ZStack {
-            Text(text)
-                .font(font)
-                .foregroundColor(color.opacity(0.6))
-                .blur(radius: 8)
-            
-            Text(text)
-                .font(font)
-                .foregroundColor(color)
-        }
-    }
-}
-
-// MARK: - Animated Progress Ring
+// MARK: - Progress Ring
 struct ProgressRing: View {
     let progress: Double
     var lineWidth: CGFloat = 8
@@ -165,7 +141,7 @@ struct ProgressRing: View {
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
-                .shadow(color: .warmGold.opacity(0.5), radius: 4, x: 0, y: 0)
+                .shadow(color: .warmGold.opacity(0.5), radius: 4)
             
             Text("\(Int(progress * 100))%")
                 .font(.system(size: size * 0.22, weight: .bold, design: .rounded))
@@ -177,7 +153,7 @@ struct ProgressRing: View {
                 animatedProgress = progress
             }
         }
-        .onChange(of: progress) { newValue in
+        .onChange(of: progress) { _, newValue in
             withAnimation(.easeOut(duration: 0.5)) {
                 animatedProgress = newValue
             }
@@ -244,33 +220,25 @@ struct LevelNode: View {
                 Circle()
                     .stroke(Color.warmGold, lineWidth: 3)
                     .frame(width: 60, height: 60)
-                    .shadow(color: .warmGold.opacity(0.5), radius: 8, x: 0, y: 0)
+                    .shadow(color: .warmGold.opacity(0.5), radius: 8)
             }
         }
     }
     
     private var backgroundColor: Color {
-        if isCompleted {
-            return .successGreen
-        } else if isUnlocked {
-            return .warmGold
-        } else {
-            return .darkSurface
-        }
+        if isCompleted { return .successGreen }
+        if isUnlocked { return .warmGold }
+        return .darkSurface
     }
     
     private var shadowColor: Color {
-        if isCompleted {
-            return .successGreen.opacity(0.5)
-        } else if isUnlocked {
-            return .warmGold.opacity(0.4)
-        } else {
-            return .clear
-        }
+        if isCompleted { return .successGreen.opacity(0.5) }
+        if isUnlocked { return .warmGold.opacity(0.4) }
+        return .clear
     }
 }
 
-// MARK: - Navigation Bar Style
+// MARK: - Custom Navigation Bar
 struct CustomNavigationBar: View {
     let title: String
     var showBackButton: Bool = true
@@ -287,8 +255,7 @@ struct CustomNavigationBar: View {
                         .frame(width: 44, height: 44)
                 }
             } else {
-                Spacer()
-                    .frame(width: 44)
+                Spacer().frame(width: 44)
             }
             
             Spacer()
@@ -300,76 +267,13 @@ struct CustomNavigationBar: View {
             Spacer()
             
             if let trailing = trailingContent {
-                trailing
-                    .frame(width: 44, height: 44)
+                trailing.frame(width: 44, height: 44)
             } else {
-                Spacer()
-                    .frame(width: 44)
+                Spacer().frame(width: 44)
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-    }
-}
-
-// MARK: - Pulse Animation
-struct PulseAnimation: ViewModifier {
-    @State private var isPulsing = false
-    var color: Color = .warmGold
-    
-    func body(content: Content) -> some View {
-        content
-            .overlay(
-                Circle()
-                    .stroke(color.opacity(isPulsing ? 0 : 0.6), lineWidth: 2)
-                    .scaleEffect(isPulsing ? 1.5 : 1.0)
-                    .opacity(isPulsing ? 0 : 1)
-            )
-            .onAppear {
-                withAnimation(.easeOut(duration: 1.5).repeatForever(autoreverses: false)) {
-                    isPulsing = true
-                }
-            }
-    }
-}
-
-extension View {
-    func pulseAnimation(color: Color = .warmGold) -> some View {
-        modifier(PulseAnimation(color: color))
-    }
-}
-
-// MARK: - Shimmer Effect
-struct ShimmerEffect: ViewModifier {
-    @State private var phase: CGFloat = 0
-    
-    func body(content: Content) -> some View {
-        content
-            .overlay(
-                LinearGradient(
-                    colors: [
-                        Color.clear,
-                        Color.white.opacity(0.3),
-                        Color.clear
-                    ],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-                .rotationEffect(.degrees(30))
-                .offset(x: phase)
-                .mask(content)
-            )
-            .onAppear {
-                withAnimation(.linear(duration: 2.0).repeatForever(autoreverses: false)) {
-                    phase = 400
-                }
-            }
-    }
-}
-
-extension View {
-    func shimmer() -> some View {
-        modifier(ShimmerEffect())
     }
 }
 
@@ -414,27 +318,3 @@ struct ScoreDisplay: View {
         )
     }
 }
-
-// MARK: - Animated Counter
-struct AnimatedCounter: View {
-    let value: Int
-    
-    @State private var displayedValue: Int = 0
-    
-    var body: some View {
-        Text("\(displayedValue)")
-            .font(.system(size: 48, weight: .bold, design: .rounded))
-            .foregroundColor(.warmGold)
-            .onAppear {
-                withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) {
-                    displayedValue = value
-                }
-            }
-            .onChange(of: value) { newValue in
-                withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-                    displayedValue = newValue
-                }
-            }
-    }
-}
-

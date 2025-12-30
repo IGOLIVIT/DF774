@@ -9,7 +9,7 @@ struct GameSelectionView: View {
     @ObservedObject var gameManager: GameManager
     @Environment(\.dismiss) private var dismiss
     @State private var selectedGame: GameType?
-    @State private var showingDifficultySelection = false
+    @State private var showingLevelSelection = false
     @State private var animateContent = false
     
     var body: some View {
@@ -25,26 +25,23 @@ struct GameSelectionView: View {
                 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
-                        // Difficulty selector
                         difficultySection
                             .opacity(animateContent ? 1 : 0)
                             .offset(y: animateContent ? 0 : 20)
                         
-                        // Game type cards
                         ForEach(Array(GameType.allCases.enumerated()), id: \.element) { index, gameType in
                             GameTypeDetailCard(
                                 gameType: gameType,
                                 progress: gameManager.getProgress(for: gameType),
                                 action: {
                                     selectedGame = gameType
-                                    showingDifficultySelection = true
+                                    showingLevelSelection = true
                                 }
                             )
                             .opacity(animateContent ? 1 : 0)
                             .offset(y: animateContent ? 0 : 30)
                             .animation(
-                                .spring(response: 0.6, dampingFraction: 0.8)
-                                .delay(Double(index) * 0.1 + 0.2),
+                                .spring(response: 0.6, dampingFraction: 0.8).delay(Double(index) * 0.1 + 0.2),
                                 value: animateContent
                             )
                         }
@@ -55,11 +52,10 @@ struct GameSelectionView: View {
                     .padding(.top, 20)
                 }
                 
-                // Navigation link
                 if let game = selectedGame {
                     NavigationLink(
                         destination: LevelSelectionView(gameManager: gameManager, gameType: game),
-                        isActive: $showingDifficultySelection
+                        isActive: $showingLevelSelection
                     ) {
                         EmptyView()
                     }
@@ -129,9 +125,7 @@ struct GameTypeDetailCard: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 20) {
-                // Header
                 HStack(spacing: 16) {
-                    // Large icon
                     ZStack {
                         RoundedRectangle(cornerRadius: 16)
                             .fill(
@@ -163,7 +157,6 @@ struct GameTypeDetailCard: View {
                     ProgressRing(progress: completionPercentage, lineWidth: 6, size: 60)
                 }
                 
-                // Description
                 Text(gameType.description)
                     .font(.system(size: 14, weight: .regular, design: .rounded))
                     .foregroundColor(.softCream.opacity(0.7))
@@ -171,7 +164,6 @@ struct GameTypeDetailCard: View {
                     .lineSpacing(4)
                     .fixedSize(horizontal: false, vertical: true)
                 
-                // Level indicators
                 HStack(spacing: 6) {
                     ForEach(0..<min(progress.count, 12), id: \.self) { index in
                         let level = progress[index]
@@ -222,13 +214,9 @@ struct GameTypeDetailCard: View {
     }
     
     private func levelColor(for level: LevelProgress) -> Color {
-        if level.isCompleted {
-            return .successGreen
-        } else if level.isUnlocked {
-            return .warmGold
-        } else {
-            return .darkSurface.opacity(0.8)
-        }
+        if level.isCompleted { return .successGreen }
+        if level.isUnlocked { return .warmGold }
+        return .darkSurface.opacity(0.8)
     }
 }
 
@@ -238,4 +226,3 @@ struct GameTypeDetailCard: View {
     }
     .navigationViewStyle(.stack)
 }
-

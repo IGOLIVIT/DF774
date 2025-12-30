@@ -19,18 +19,14 @@ struct MainHubView: View {
                 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 28) {
-                        // Header
                         headerSection
                         
-                        // Quick Stats
                         statsSection
                             .opacity(animateStats ? 1 : 0)
                             .offset(y: animateStats ? 0 : 20)
                         
-                        // Game Selection Cards
                         gamesSection
                         
-                        // Recent Badges
                         if !gameManager.earnedBadges.isEmpty {
                             badgesSection
                         }
@@ -41,7 +37,6 @@ struct MainHubView: View {
                     .padding(.top, 20)
                 }
                 
-                // Navigation link
                 NavigationLink(
                     destination: GameSelectionView(gameManager: gameManager),
                     isActive: $showingGameSelection
@@ -65,7 +60,7 @@ struct MainHubView: View {
         .navigationViewStyle(.stack)
     }
     
-    // MARK: - Header Section
+    // MARK: - Header
     private var headerSection: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
@@ -104,30 +99,16 @@ struct MainHubView: View {
         }
     }
     
-    // MARK: - Stats Section
+    // MARK: - Stats
     private var statsSection: some View {
         HStack(spacing: 12) {
-            StatCard(
-                icon: "flame.fill",
-                value: "\(gameManager.playerStats.currentStreak)",
-                label: "Streak"
-            )
-            
-            StatCard(
-                icon: "checkmark.circle.fill",
-                value: "\(gameManager.totalCompletedLevels)",
-                label: "Completed"
-            )
-            
-            StatCard(
-                icon: "clock.fill",
-                value: gameManager.playerStats.formattedPlayTime,
-                label: "Play Time"
-            )
+            StatCard(icon: "flame.fill", value: "\(gameManager.playerStats.currentStreak)", label: "Streak")
+            StatCard(icon: "checkmark.circle.fill", value: "\(gameManager.totalCompletedLevels)", label: "Completed")
+            StatCard(icon: "clock.fill", value: gameManager.playerStats.formattedPlayTime, label: "Play Time")
         }
     }
     
-    // MARK: - Games Section
+    // MARK: - Games
     private var gamesSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("CHALLENGES")
@@ -147,8 +128,7 @@ struct MainHubView: View {
                     .opacity(animateCards ? 1 : 0)
                     .offset(y: animateCards ? 0 : 30)
                     .animation(
-                        .spring(response: 0.6, dampingFraction: 0.8)
-                        .delay(Double(index) * 0.1),
+                        .spring(response: 0.6, dampingFraction: 0.8).delay(Double(index) * 0.1),
                         value: animateCards
                     )
                 }
@@ -156,7 +136,7 @@ struct MainHubView: View {
         }
     }
     
-    // MARK: - Badges Section
+    // MARK: - Badges
     private var badgesSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("EARNED BADGES")
@@ -226,7 +206,6 @@ struct GameCard: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 16) {
-                // Icon
                 ZStack {
                     Circle()
                         .fill(
@@ -244,7 +223,6 @@ struct GameCard: View {
                         .foregroundColor(.deepCharcoal)
                 }
                 
-                // Info
                 VStack(alignment: .leading, spacing: 6) {
                     Text(gameType.rawValue)
                         .font(.system(size: 18, weight: .bold, design: .rounded))
@@ -254,7 +232,6 @@ struct GameCard: View {
                         .font(.system(size: 14, weight: .medium, design: .rounded))
                         .foregroundColor(.softCream.opacity(0.6))
                     
-                    // Progress bar
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
                             RoundedRectangle(cornerRadius: 4)
@@ -271,7 +248,6 @@ struct GameCard: View {
                 
                 Spacer()
                 
-                // Progress indicator
                 VStack(spacing: 4) {
                     Text("\(levelsCompleted)/\(totalLevels)")
                         .font(.system(size: 14, weight: .bold, design: .rounded))
@@ -345,4 +321,3 @@ struct BadgeView: View {
 #Preview {
     MainHubView(gameManager: GameManager.shared)
 }
-
