@@ -179,7 +179,7 @@ struct OnboardingSlideView: View {
         .onAppear {
             animateIn()
         }
-        .onChange(of: isAnimating) { _, newValue in
+        .onChange(of: isAnimating) { newValue in
             if newValue { animateIn() }
         }
     }
