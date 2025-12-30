@@ -14,54 +14,17 @@ struct ContentView: View {
     
     @AppStorage("onboarding_completed") private var onboardingCompleted = false
     
-    @ObservedObject private var notificationService = NotificationService.shared
-    
-    @StateObject private var appState = AppState()
-    @ObservedObject private var network = NetworkMonitor.shared
+
     
     var body: some View {
         ZStack {
-            contentForMode
+            nativeContentView
         }
-        .alert("No connection to internet",
-               isPresented: $appState.showNoInternetAlertForGrey) {
-            Button("Open settings") { appState.openSettings() }
-            Button("Cancel", role: .cancel) { }
-        } message: {
-            Text("To continue: turn on celullar data and come back to app")
-        }
-        .onAppear {
-            appState.bootstrap()
-            notificationService.updatePermissionStatus()
-            logPlayerIdWithDelay()
-        }
+    
     }
     
     // MARK: - Логика выбора режима (white/grey)
-    @ViewBuilder
-    private var contentForMode: some View {
-        switch appState.mode {
-        case .none:
-            ProgressView()
-            
-        case .some(.white):
-            nativeContentView
-                .onAppear {
-                    simulateLoading()
-                }
-            
-        case .some(.grey):
-            if let url = appState.savedGreyURL {
-                WebContainerView(initialURL: url)
-            } else {
-                // Fallback на нативный контент если URL недоступен
-                nativeContentView
-                    .onAppear {
-                        simulateLoading()
-                    }
-            }
-        }
-    }
+
     
     // MARK: - Нативный контент (Loading → Onboarding → MainHub)
     @ViewBuilder
@@ -96,19 +59,7 @@ struct ContentView: View {
         }
     }
     
-    private func logPlayerIdWithDelay() {
-        Task {
-            try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 секунды
-            
-            await MainActor.run {
-                if let playerId = notificationService.currentPlayerId {
-                    print("🔔 Current OneSignal Player ID: \(playerId)")
-                } else {
-                    print("🔔 OneSignal Player ID еще не доступен")
-                }
-            }
-        }
-    }
+ 
 }
 
 // MARK: - Loading View

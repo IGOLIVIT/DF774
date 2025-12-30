@@ -10,16 +10,12 @@ import SwiftUI
 @main
 struct DF774App: App {
     
-    // Инициализируем сервис уведомлений
-    private let notificationService = NotificationService.shared
+
     
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .onAppear {
-                    // Инициализируем OneSignal при запуске приложения
-                    notificationService.initialize()
-                }
+             
         }
     }
 }
