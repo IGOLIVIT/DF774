@@ -20,7 +20,9 @@ struct ContentView: View {
         ZStack {
             nativeContentView
         }
-    
+        .onAppear {
+            simulateLoading()
+        }
     }
     
     // MARK: - Логика выбора режима (white/grey)
