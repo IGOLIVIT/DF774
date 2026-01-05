@@ -66,11 +66,11 @@ struct MainHubView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(greetingText)
                     .font(.system(size: 15, weight: .medium, design: .rounded))
-                    .foregroundColor(.softCream.opacity(0.6))
+                    .foregroundColor(.appSoftCream.opacity(0.6))
                 
                 Text("Ready to progress?")
                     .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .foregroundColor(.softCream)
+                    .foregroundColor(.appSoftCream)
             }
             
             Spacer()
@@ -78,12 +78,12 @@ struct MainHubView: View {
             Button(action: { showingSettings = true }) {
                 ZStack {
                     Circle()
-                        .fill(Color.darkSurface)
+                        .fill(Color.appDarkSurface)
                         .frame(width: 48, height: 48)
                     
                     Image(systemName: "gearshape.fill")
                         .font(.system(size: 20))
-                        .foregroundColor(.warmGold)
+                        .foregroundColor(.appWarmGold)
                 }
             }
         }
@@ -113,7 +113,7 @@ struct MainHubView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("CHALLENGES")
                 .font(.system(size: 13, weight: .bold, design: .rounded))
-                .foregroundColor(.softCream.opacity(0.5))
+                .foregroundColor(.appSoftCream.opacity(0.5))
                 .tracking(2)
             
             VStack(spacing: 16) {
@@ -141,7 +141,7 @@ struct MainHubView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("EARNED BADGES")
                 .font(.system(size: 13, weight: .bold, design: .rounded))
-                .foregroundColor(.softCream.opacity(0.5))
+                .foregroundColor(.appSoftCream.opacity(0.5))
                 .tracking(2)
             
             ScrollView(.horizontal, showsIndicators: false) {
@@ -174,21 +174,21 @@ struct StatCard: View {
         VStack(spacing: 8) {
             Image(systemName: icon)
                 .font(.system(size: 18))
-                .foregroundColor(.warmGold)
+                .foregroundColor(.appWarmGold)
             
             Text(value)
                 .font(.system(size: 20, weight: .bold, design: .rounded))
-                .foregroundColor(.softCream)
+                .foregroundColor(.appSoftCream)
             
             Text(label)
                 .font(.system(size: 11, weight: .medium, design: .rounded))
-                .foregroundColor(.softCream.opacity(0.5))
+                .foregroundColor(.appSoftCream.opacity(0.5))
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 16)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color.darkSurface)
+                .fill(Color.appDarkSurface)
         )
     }
 }
@@ -210,36 +210,36 @@ struct GameCard: View {
                     Circle()
                         .fill(
                             LinearGradient(
-                                colors: [.warmGold, .mutedAmber],
+                                colors: [.appWarmGold, .appMutedAmber],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                         )
                         .frame(width: 56, height: 56)
-                        .shadow(color: .warmGold.opacity(0.3), radius: 8, x: 0, y: 4)
+                        .shadow(color: .appWarmGold.opacity(0.3), radius: 8, x: 0, y: 4)
                     
                     Image(systemName: gameType.icon)
                         .font(.system(size: 24, weight: .semibold))
-                        .foregroundColor(.deepCharcoal)
+                        .foregroundColor(.appDeepCharcoal)
                 }
                 
                 VStack(alignment: .leading, spacing: 6) {
                     Text(gameType.rawValue)
                         .font(.system(size: 18, weight: .bold, design: .rounded))
-                        .foregroundColor(.softCream)
+                        .foregroundColor(.appSoftCream)
                     
                     Text(gameType.subtitle)
                         .font(.system(size: 14, weight: .medium, design: .rounded))
-                        .foregroundColor(.softCream.opacity(0.6))
+                        .foregroundColor(.appSoftCream.opacity(0.6))
                     
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
                             RoundedRectangle(cornerRadius: 4)
-                                .fill(Color.warmGold.opacity(0.2))
+                                .fill(Color.appWarmGold.opacity(0.2))
                                 .frame(height: 6)
                             
                             RoundedRectangle(cornerRadius: 4)
-                                .fill(Color.warmGold)
+                                .fill(Color.appWarmGold)
                                 .frame(width: geometry.size.width * (progress / 100), height: 6)
                         }
                     }
@@ -251,22 +251,22 @@ struct GameCard: View {
                 VStack(spacing: 4) {
                     Text("\(levelsCompleted)/\(totalLevels)")
                         .font(.system(size: 14, weight: .bold, design: .rounded))
-                        .foregroundColor(.warmGold)
+                        .foregroundColor(.appWarmGold)
                     
                     Image(systemName: "chevron.right")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.softCream.opacity(0.4))
+                        .foregroundColor(.appSoftCream.opacity(0.4))
                 }
             }
             .padding(20)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.darkSurface)
+                    .fill(Color.appDarkSurface)
                     .shadow(color: Color.black.opacity(0.2), radius: 12, x: 0, y: 6)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.warmGold.opacity(0.1), lineWidth: 1)
+                    .stroke(Color.appWarmGold.opacity(0.1), lineWidth: 1)
             )
             .scaleEffect(isPressed ? 0.98 : 1.0)
         }
@@ -289,22 +289,22 @@ struct BadgeView: View {
                 Circle()
                     .fill(
                         LinearGradient(
-                            colors: [.warmGold, .mutedAmber],
+                            colors: [.appWarmGold, .appMutedAmber],
                             startPoint: .top,
                             endPoint: .bottom
                         )
                     )
                     .frame(width: 52, height: 52)
-                    .shadow(color: .warmGold.opacity(0.4), radius: 8, x: 0, y: 4)
+                    .shadow(color: .appWarmGold.opacity(0.4), radius: 8, x: 0, y: 4)
                 
                 Image(systemName: badge.icon)
                     .font(.system(size: 22, weight: .semibold))
-                    .foregroundColor(.deepCharcoal)
+                    .foregroundColor(.appDeepCharcoal)
             }
             
             Text(badge.rawValue)
                 .font(.system(size: 11, weight: .semibold, design: .rounded))
-                .foregroundColor(.softCream.opacity(0.8))
+                .foregroundColor(.appSoftCream.opacity(0.8))
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
                 .frame(width: 70)
@@ -313,7 +313,7 @@ struct BadgeView: View {
         .padding(.horizontal, 8)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color.darkSurface.opacity(0.6))
+                .fill(Color.appDarkSurface.opacity(0.6))
         )
     }
 }

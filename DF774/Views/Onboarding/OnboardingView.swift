@@ -15,25 +15,25 @@ struct OnboardingView: View {
             icon: "arrow.up.forward",
             title: "Step Forward",
             description: "Every action is a choice. Progress through carefully designed challenges that test your timing and precision.",
-            gradientColors: [.warmGold, .mutedAmber]
+            gradientColors: [.appWarmGold, .appMutedAmber]
         ),
         OnboardingSlide(
             icon: "flame.fill",
             title: "Build Momentum",
             description: "Each level completed adds to your streak. Consistent progress unlocks new challenges and mastery badges.",
-            gradientColors: [.mutedAmber, .warmGold]
+            gradientColors: [.appMutedAmber, .appWarmGold]
         ),
         OnboardingSlide(
             icon: "target",
             title: "Calculated Risk",
             description: "Choose your difficulty. Balance risk and reward to find your edge. The greater the challenge, the greater the progress.",
-            gradientColors: [.warmGold, .successGreen]
+            gradientColors: [.appWarmGold, .appSuccessGreen]
         ),
         OnboardingSlide(
             icon: "crown.fill",
             title: "Earn Mastery",
             description: "Complete levels, build streaks, and unlock badges that showcase your skill. Your progress tells your story.",
-            gradientColors: [.successGreen, .warmGold]
+            gradientColors: [.appSuccessGreen, .appWarmGold]
         )
     ]
     
@@ -56,7 +56,7 @@ struct OnboardingView: View {
                     HStack(spacing: 10) {
                         ForEach(0..<slides.count, id: \.self) { index in
                             Capsule()
-                                .fill(index == currentPage ? Color.warmGold : Color.warmGold.opacity(0.3))
+                                .fill(index == currentPage ? Color.appWarmGold : Color.appWarmGold.opacity(0.3))
                                 .frame(width: index == currentPage ? 24 : 8, height: 8)
                                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: currentPage)
                         }
@@ -81,7 +81,7 @@ struct OnboardingView: View {
                             completeOnboarding()
                         }
                         .font(.system(size: 15, weight: .medium, design: .rounded))
-                        .foregroundColor(.softCream.opacity(0.6))
+                        .foregroundColor(.appSoftCream.opacity(0.6))
                         .padding(.bottom, 8)
                     } else {
                         Spacer().frame(height: 40)
@@ -152,7 +152,7 @@ struct OnboardingSlideView: View {
                 
                 Image(systemName: slide.icon)
                     .font(.system(size: 48, weight: .semibold))
-                    .foregroundColor(.deepCharcoal)
+                    .foregroundColor(.appDeepCharcoal)
             }
             .scaleEffect(iconScale)
             .opacity(iconOpacity)
@@ -160,11 +160,11 @@ struct OnboardingSlideView: View {
             VStack(spacing: 16) {
                 Text(slide.title)
                     .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .foregroundColor(.softCream)
+                    .foregroundColor(.appSoftCream)
                 
                 Text(slide.description)
                     .font(.system(size: 16, weight: .regular, design: .rounded))
-                    .foregroundColor(.softCream.opacity(0.7))
+                    .foregroundColor(.appSoftCream.opacity(0.7))
                     .multilineTextAlignment(.center)
                     .lineSpacing(4)
                     .fixedSize(horizontal: false, vertical: true)

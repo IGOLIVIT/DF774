@@ -50,10 +50,10 @@ struct GameContainerView: View {
             Button(action: { isPaused = true }) {
                 Image(systemName: "pause.fill")
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.softCream)
+                    .foregroundColor(.appSoftCream)
                     .frame(width: 44, height: 44)
                     .background(
-                        Circle().fill(Color.darkSurface)
+                        Circle().fill(Color.appDarkSurface)
                     )
             }
             
@@ -62,11 +62,11 @@ struct GameContainerView: View {
             VStack(spacing: 4) {
                 Text("Level \(level)")
                     .font(.system(size: 16, weight: .bold, design: .rounded))
-                    .foregroundColor(.softCream)
+                    .foregroundColor(.appSoftCream)
                 
                 Text(gameManager.selectedDifficulty.rawValue)
                     .font(.system(size: 12, weight: .medium, design: .rounded))
-                    .foregroundColor(.warmGold)
+                    .foregroundColor(.appWarmGold)
             }
             
             Spacer()
@@ -114,7 +114,7 @@ struct GameContainerView: View {
             VStack(spacing: 24) {
                 Text("Paused")
                     .font(.system(size: 32, weight: .bold, design: .rounded))
-                    .foregroundColor(.softCream)
+                    .foregroundColor(.appSoftCream)
                 
                 VStack(spacing: 16) {
                     Button("Resume") {
@@ -144,13 +144,13 @@ struct GameContainerView: View {
                     Circle()
                         .fill(
                             LinearGradient(
-                                colors: gameState.isCompleted ? [.successGreen, .warmGold] : [.mutedAmber, .warmGold],
+                                colors: gameState.isCompleted ? [.appSuccessGreen, .appWarmGold] : [.appMutedAmber, .appWarmGold],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                         )
                         .frame(width: 100, height: 100)
-                        .shadow(color: (gameState.isCompleted ? Color.successGreen : .mutedAmber).opacity(0.5), radius: 20)
+                        .shadow(color: (gameState.isCompleted ? Color.appSuccessGreen : .appMutedAmber).opacity(0.5), radius: 20)
                     
                     Image(systemName: gameState.isCompleted ? "checkmark" : "xmark")
                         .font(.system(size: 44, weight: .bold))
@@ -159,26 +159,26 @@ struct GameContainerView: View {
                 
                 Text(gameState.isCompleted ? "Level Complete!" : "Game Over")
                     .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .foregroundColor(.softCream)
+                    .foregroundColor(.appSoftCream)
                 
                 // Stats
                 HStack(spacing: 32) {
                     VStack(spacing: 8) {
                         Text("\(gameState.score)")
                             .font(.system(size: 32, weight: .bold, design: .rounded))
-                            .foregroundColor(.warmGold)
+                            .foregroundColor(.appWarmGold)
                         Text("Score")
                             .font(.system(size: 14, weight: .medium, design: .rounded))
-                            .foregroundColor(.softCream.opacity(0.6))
+                            .foregroundColor(.appSoftCream.opacity(0.6))
                     }
                     
                     VStack(spacing: 8) {
                         Text("\(gameState.lives)")
                             .font(.system(size: 32, weight: .bold, design: .rounded))
-                            .foregroundColor(.warmGold)
+                            .foregroundColor(.appWarmGold)
                         Text("Lives Left")
                             .font(.system(size: 14, weight: .medium, design: .rounded))
-                            .foregroundColor(.softCream.opacity(0.6))
+                            .foregroundColor(.appSoftCream.opacity(0.6))
                     }
                 }
                 
@@ -224,5 +224,11 @@ struct GameContainerView: View {
 #Preview {
     GameContainerView(gameManager: GameManager.shared, gameType: .sequence, level: 1)
 }
+
+
+
+
+
+
 
 

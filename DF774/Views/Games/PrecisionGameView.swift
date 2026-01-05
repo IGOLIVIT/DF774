@@ -38,8 +38,8 @@ struct PrecisionGameView: View {
                 HStack(spacing: 4) {
                     ForEach(1...roundsToComplete, id: \.self) { round in
                         Circle()
-                            .fill(round < currentRound ? Color.successGreen :
-                                  round == currentRound ? Color.warmGold : Color.darkSurface)
+                            .fill(round < currentRound ? Color.appSuccessGreen :
+                                  round == currentRound ? Color.appWarmGold : Color.appDarkSurface)
                             .frame(width: 12, height: 12)
                     }
                 }
@@ -48,7 +48,7 @@ struct PrecisionGameView: View {
             
             Text("Round \(currentRound) of \(roundsToComplete)")
                 .font(.system(size: 14, weight: .medium, design: .rounded))
-                .foregroundColor(.softCream.opacity(0.6))
+                .foregroundColor(.appSoftCream.opacity(0.6))
             
             Spacer()
             
@@ -56,11 +56,11 @@ struct PrecisionGameView: View {
             VStack(spacing: 8) {
                 Text("Stop in the zone!")
                     .font(.system(size: 22, weight: .bold, design: .rounded))
-                    .foregroundColor(.softCream)
+                    .foregroundColor(.appSoftCream)
                 
                 Text("Tap when the indicator is in the gold zone")
                     .font(.system(size: 14, weight: .medium, design: .rounded))
-                    .foregroundColor(.softCream.opacity(0.6))
+                    .foregroundColor(.appSoftCream.opacity(0.6))
             }
             
             // Precision bar
@@ -72,17 +72,17 @@ struct PrecisionGameView: View {
                 ZStack(alignment: .leading) {
                     // Background bar
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.darkSurface)
+                        .fill(Color.appDarkSurface)
                         .frame(height: 24)
                     
                     // Target zone
                     RoundedRectangle(cornerRadius: 6)
-                        .fill(Color.warmGold.opacity(0.4))
+                        .fill(Color.appWarmGold.opacity(0.4))
                         .frame(width: zoneWidth, height: 20)
                         .offset(x: zonePosition + 2)
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.warmGold, lineWidth: 2)
+                                .stroke(Color.appWarmGold, lineWidth: 2)
                                 .frame(width: zoneWidth, height: 20)
                                 .offset(x: zonePosition + 2)
                         )
@@ -106,11 +106,11 @@ struct PrecisionGameView: View {
                 VStack(spacing: 12) {
                     Image(systemName: roundSuccess ? "checkmark.circle.fill" : "xmark.circle.fill")
                         .font(.system(size: 60))
-                        .foregroundColor(roundSuccess ? .successGreen : .mutedAmber)
+                        .foregroundColor(roundSuccess ? .appSuccessGreen : .appMutedAmber)
                     
                     Text(roundSuccess ? "Perfect!" : "Missed!")
                         .font(.system(size: 24, weight: .bold, design: .rounded))
-                        .foregroundColor(roundSuccess ? .successGreen : .mutedAmber)
+                        .foregroundColor(roundSuccess ? .appSuccessGreen : .appMutedAmber)
                 }
                 .transition(.scale.combined(with: .opacity))
             }
@@ -121,18 +121,18 @@ struct PrecisionGameView: View {
             Button(action: stopIndicator) {
                 Text("TAP!")
                     .font(.system(size: 24, weight: .bold, design: .rounded))
-                    .foregroundColor(.deepCharcoal)
+                    .foregroundColor(.appDeepCharcoal)
                     .frame(width: 120, height: 120)
                     .background(
                         Circle()
                             .fill(
                                 LinearGradient(
-                                    colors: [.warmGold, .mutedAmber],
+                                    colors: [.appWarmGold, .appMutedAmber],
                                     startPoint: .top,
                                     endPoint: .bottom
                                 )
                             )
-                            .shadow(color: .warmGold.opacity(0.5), radius: 16, x: 0, y: 8)
+                            .shadow(color: .appWarmGold.opacity(0.5), radius: 16, x: 0, y: 8)
                     )
             }
             .disabled(!isRunning || showRoundResult)
@@ -151,9 +151,9 @@ struct PrecisionGameView: View {
     private var indicatorColor: Color {
         let zoneEnd = targetZoneStart + (targetZoneSize / 200)
         if indicatorPosition >= targetZoneStart && indicatorPosition <= zoneEnd {
-            return .successGreen
+            return .appSuccessGreen
         }
-        return .warmGold
+        return .appWarmGold
     }
     
     private func setupRound() {

@@ -73,33 +73,33 @@ struct LevelSelectionView: View {
                 Circle()
                     .fill(
                         LinearGradient(
-                            colors: [.warmGold, .mutedAmber],
+                            colors: [.appWarmGold, .appMutedAmber],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                     )
                     .frame(width: 72, height: 72)
-                    .shadow(color: .warmGold.opacity(0.4), radius: 12, x: 0, y: 6)
+                    .shadow(color: .appWarmGold.opacity(0.4), radius: 12, x: 0, y: 6)
                 
                 Image(systemName: gameType.icon)
                     .font(.system(size: 32, weight: .semibold))
-                    .foregroundColor(.deepCharcoal)
+                    .foregroundColor(.appDeepCharcoal)
             }
             
             VStack(alignment: .leading, spacing: 8) {
                 Text(gameType.subtitle)
                     .font(.system(size: 14, weight: .medium, design: .rounded))
-                    .foregroundColor(.warmGold)
+                    .foregroundColor(.appWarmGold)
                 
                 Text(gameType.description)
                     .font(.system(size: 13, weight: .regular, design: .rounded))
-                    .foregroundColor(.softCream.opacity(0.7))
+                    .foregroundColor(.appSoftCream.opacity(0.7))
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
                 
                 Text("\(progress.filter { $0.isCompleted }.count)/\(gameType.levelCount) completed")
                     .font(.system(size: 12, weight: .semibold, design: .rounded))
-                    .foregroundColor(.softCream.opacity(0.5))
+                    .foregroundColor(.appSoftCream.opacity(0.5))
             }
             
             Spacer()
@@ -107,7 +107,7 @@ struct LevelSelectionView: View {
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.darkSurface)
+                .fill(Color.appDarkSurface)
         )
     }
     
@@ -116,7 +116,7 @@ struct LevelSelectionView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("SELECT LEVEL")
                 .font(.system(size: 13, weight: .bold, design: .rounded))
-                .foregroundColor(.softCream.opacity(0.5))
+                .foregroundColor(.appSoftCream.opacity(0.5))
                 .tracking(2)
             
             LazyVGrid(columns: [
@@ -150,7 +150,7 @@ struct LevelSelectionView: View {
             .padding(20)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.darkSurface)
+                    .fill(Color.appDarkSurface)
             )
         }
     }

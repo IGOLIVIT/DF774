@@ -76,7 +76,7 @@ struct GameSelectionView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("DIFFICULTY")
                 .font(.system(size: 13, weight: .bold, design: .rounded))
-                .foregroundColor(.softCream.opacity(0.5))
+                .foregroundColor(.appSoftCream.opacity(0.5))
                 .tracking(2)
             
             HStack(spacing: 10) {
@@ -96,14 +96,14 @@ struct GameSelectionView: View {
             
             Text(gameManager.selectedDifficulty.description)
                 .font(.system(size: 13, weight: .medium, design: .rounded))
-                .foregroundColor(.softCream.opacity(0.5))
+                .foregroundColor(.appSoftCream.opacity(0.5))
                 .padding(.top, 4)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.darkSurface)
+                .fill(Color.appDarkSurface)
         )
     }
 }
@@ -130,7 +130,7 @@ struct GameTypeDetailCard: View {
                         RoundedRectangle(cornerRadius: 16)
                             .fill(
                                 LinearGradient(
-                                    colors: [.warmGold.opacity(0.3), .warmGold.opacity(0.1)],
+                                    colors: [.appWarmGold.opacity(0.3), .appWarmGold.opacity(0.1)],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
@@ -139,17 +139,17 @@ struct GameTypeDetailCard: View {
                         
                         Image(systemName: gameType.icon)
                             .font(.system(size: 32, weight: .semibold))
-                            .foregroundColor(.warmGold)
+                            .foregroundColor(.appWarmGold)
                     }
                     
                     VStack(alignment: .leading, spacing: 6) {
                         Text(gameType.rawValue)
                             .font(.system(size: 22, weight: .bold, design: .rounded))
-                            .foregroundColor(.softCream)
+                            .foregroundColor(.appSoftCream)
                         
                         Text(gameType.subtitle)
                             .font(.system(size: 14, weight: .medium, design: .rounded))
-                            .foregroundColor(.warmGold)
+                            .foregroundColor(.appWarmGold)
                     }
                     
                     Spacer()
@@ -159,7 +159,7 @@ struct GameTypeDetailCard: View {
                 
                 Text(gameType.description)
                     .font(.system(size: 14, weight: .regular, design: .rounded))
-                    .foregroundColor(.softCream.opacity(0.7))
+                    .foregroundColor(.appSoftCream.opacity(0.7))
                     .multilineTextAlignment(.leading)
                     .lineSpacing(4)
                     .fixedSize(horizontal: false, vertical: true)
@@ -175,11 +175,11 @@ struct GameTypeDetailCard: View {
                                     if level.isCompleted {
                                         Image(systemName: "checkmark")
                                             .font(.system(size: 10, weight: .bold))
-                                            .foregroundColor(.deepCharcoal)
+                                            .foregroundColor(.appDeepCharcoal)
                                     } else if !level.isUnlocked {
                                         Image(systemName: "lock.fill")
                                             .font(.system(size: 8, weight: .bold))
-                                            .foregroundColor(.softCream.opacity(0.3))
+                                            .foregroundColor(.appSoftCream.opacity(0.3))
                                     }
                                 }
                             )
@@ -189,20 +189,20 @@ struct GameTypeDetailCard: View {
                     
                     Image(systemName: "chevron.right")
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.warmGold)
+                        .foregroundColor(.appWarmGold)
                 }
             }
             .padding(20)
             .background(
                 RoundedRectangle(cornerRadius: 24)
-                    .fill(Color.darkSurface)
+                    .fill(Color.appDarkSurface)
                     .shadow(color: Color.black.opacity(0.25), radius: 16, x: 0, y: 8)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 24)
                     .stroke(
                         LinearGradient(
-                            colors: [.warmGold.opacity(0.2), .warmGold.opacity(0.05)],
+                            colors: [.appWarmGold.opacity(0.2), .appWarmGold.opacity(0.05)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ),
@@ -214,9 +214,9 @@ struct GameTypeDetailCard: View {
     }
     
     private func levelColor(for level: LevelProgress) -> Color {
-        if level.isCompleted { return .successGreen }
-        if level.isUnlocked { return .warmGold }
-        return .darkSurface.opacity(0.8)
+        if level.isCompleted { return .appSuccessGreen }
+        if level.isUnlocked { return .appWarmGold }
+        return .appDarkSurface.opacity(0.8)
     }
 }
 

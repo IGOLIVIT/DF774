@@ -11,7 +11,7 @@ struct AppBackground: View {
     
     var body: some View {
         ZStack {
-            Color.deepCharcoal
+            Color.appDeepCharcoal
                 .ignoresSafeArea()
             
             GeometryReader { geometry in
@@ -19,7 +19,7 @@ struct AppBackground: View {
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color.warmGold.opacity(0.15 * intensity),
+                                Color.appWarmGold.opacity(0.15 * intensity),
                                 Color.clear
                             ],
                             center: .center,
@@ -34,7 +34,7 @@ struct AppBackground: View {
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color.mutedAmber.opacity(0.1 * intensity),
+                                Color.appMutedAmber.opacity(0.1 * intensity),
                                 Color.clear
                             ],
                             center: .center,
@@ -56,13 +56,13 @@ struct PrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 17, weight: .semibold, design: .rounded))
-            .foregroundColor(isDestructive ? .white : .deepCharcoal)
+            .foregroundColor(isDestructive ? .white : .appDeepCharcoal)
             .frame(maxWidth: .infinity)
             .frame(height: 56)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(isDestructive ? Color.mutedAmber : Color.warmGold)
-                    .shadow(color: (isDestructive ? Color.mutedAmber : Color.warmGold).opacity(0.4), radius: 12, x: 0, y: 6)
+                    .fill(isDestructive ? Color.appMutedAmber : Color.appWarmGold)
+                    .shadow(color: (isDestructive ? Color.appMutedAmber : Color.appWarmGold).opacity(0.4), radius: 12, x: 0, y: 6)
             )
             .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
             .opacity(configuration.isPressed ? 0.9 : 1.0)
@@ -75,15 +75,15 @@ struct SecondaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 17, weight: .medium, design: .rounded))
-            .foregroundColor(.warmGold)
+            .foregroundColor(.appWarmGold)
             .frame(maxWidth: .infinity)
             .frame(height: 56)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.warmGold.opacity(0.5), lineWidth: 1.5)
+                    .stroke(Color.appWarmGold.opacity(0.5), lineWidth: 1.5)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.warmGold.opacity(0.08))
+                            .fill(Color.appWarmGold.opacity(0.08))
                     )
             )
             .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
@@ -101,12 +101,12 @@ struct CardModifier: ViewModifier {
             .padding(padding)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.darkSurface)
+                    .fill(Color.appDarkSurface)
                     .shadow(color: Color.black.opacity(0.3), radius: 16, x: 0, y: 8)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.warmGold.opacity(0.1), lineWidth: 1)
+                    .stroke(Color.appWarmGold.opacity(0.1), lineWidth: 1)
             )
     }
 }
@@ -128,24 +128,24 @@ struct ProgressRing: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(Color.warmGold.opacity(0.2), lineWidth: lineWidth)
+                .stroke(Color.appWarmGold.opacity(0.2), lineWidth: lineWidth)
             
             Circle()
                 .trim(from: 0, to: animatedProgress)
                 .stroke(
                     LinearGradient(
-                        colors: [.warmGold, .mutedAmber],
+                        colors: [.appWarmGold, .appMutedAmber],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ),
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
-                .shadow(color: .warmGold.opacity(0.5), radius: 4)
+                .shadow(color: .appWarmGold.opacity(0.5), radius: 4)
             
             Text("\(Int(progress * 100))%")
                 .font(.system(size: size * 0.22, weight: .bold, design: .rounded))
-                .foregroundColor(.softCream)
+                .foregroundColor(.appSoftCream)
         }
         .frame(width: size, height: size)
         .onAppear {
@@ -174,16 +174,16 @@ struct DifficultyBadge: View {
             Text(difficulty.rawValue)
                 .font(.system(size: 14, weight: .semibold, design: .rounded))
         }
-        .foregroundColor(isSelected ? .deepCharcoal : .softCream.opacity(0.8))
+        .foregroundColor(isSelected ? .appDeepCharcoal : .appSoftCream.opacity(0.8))
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
         .background(
             Capsule()
-                .fill(isSelected ? Color.warmGold : Color.darkSurface)
+                .fill(isSelected ? Color.appWarmGold : Color.appDarkSurface)
         )
         .overlay(
             Capsule()
-                .stroke(Color.warmGold.opacity(isSelected ? 0 : 0.3), lineWidth: 1)
+                .stroke(Color.appWarmGold.opacity(isSelected ? 0 : 0.3), lineWidth: 1)
         )
     }
 }
@@ -205,35 +205,35 @@ struct LevelNode: View {
             if isCompleted {
                 Image(systemName: "checkmark")
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(.deepCharcoal)
+                    .foregroundColor(.appDeepCharcoal)
             } else if isUnlocked {
                 Text("\(level)")
                     .font(.system(size: 18, weight: .bold, design: .rounded))
-                    .foregroundColor(.deepCharcoal)
+                    .foregroundColor(.appDeepCharcoal)
             } else {
                 Image(systemName: "lock.fill")
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.softCream.opacity(0.4))
+                    .foregroundColor(.appSoftCream.opacity(0.4))
             }
             
             if isCurrent {
                 Circle()
-                    .stroke(Color.warmGold, lineWidth: 3)
+                    .stroke(Color.appWarmGold, lineWidth: 3)
                     .frame(width: 60, height: 60)
-                    .shadow(color: .warmGold.opacity(0.5), radius: 8)
+                    .shadow(color: .appWarmGold.opacity(0.5), radius: 8)
             }
         }
     }
     
     private var backgroundColor: Color {
-        if isCompleted { return .successGreen }
-        if isUnlocked { return .warmGold }
-        return .darkSurface
+        if isCompleted { return .appSuccessGreen }
+        if isUnlocked { return .appWarmGold }
+        return .appDarkSurface
     }
     
     private var shadowColor: Color {
-        if isCompleted { return .successGreen.opacity(0.5) }
-        if isUnlocked { return .warmGold.opacity(0.4) }
+        if isCompleted { return .appSuccessGreen.opacity(0.5) }
+        if isUnlocked { return .appWarmGold.opacity(0.4) }
         return .clear
     }
 }
@@ -251,7 +251,7 @@ struct CustomNavigationBar: View {
                 Button(action: { backAction?() }) {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.warmGold)
+                        .foregroundColor(.appWarmGold)
                         .frame(width: 44, height: 44)
                 }
             } else {
@@ -262,7 +262,7 @@ struct CustomNavigationBar: View {
             
             Text(title)
                 .font(.system(size: 18, weight: .semibold, design: .rounded))
-                .foregroundColor(.softCream)
+                .foregroundColor(.appSoftCream)
             
             Spacer()
             
@@ -287,7 +287,7 @@ struct LivesIndicator: View {
             ForEach(0..<maxLives, id: \.self) { index in
                 Image(systemName: index < lives ? "heart.fill" : "heart")
                     .font(.system(size: 18))
-                    .foregroundColor(index < lives ? .mutedAmber : .mutedAmber.opacity(0.3))
+                    .foregroundColor(index < lives ? .appMutedAmber : .appMutedAmber.opacity(0.3))
                     .scaleEffect(index < lives ? 1.0 : 0.85)
             }
         }
@@ -303,18 +303,18 @@ struct ScoreDisplay: View {
         VStack(spacing: 4) {
             Text(label.uppercased())
                 .font(.system(size: 11, weight: .semibold, design: .rounded))
-                .foregroundColor(.softCream.opacity(0.5))
+                .foregroundColor(.appSoftCream.opacity(0.5))
                 .tracking(1.5)
             
             Text("\(score)")
                 .font(.system(size: 28, weight: .bold, design: .rounded))
-                .foregroundColor(.warmGold)
+                .foregroundColor(.appWarmGold)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.darkSurface)
+                .fill(Color.appDarkSurface)
         )
     }
 }

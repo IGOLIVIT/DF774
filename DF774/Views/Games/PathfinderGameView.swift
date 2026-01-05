@@ -39,11 +39,11 @@ struct PathfinderGameView: View {
             VStack(spacing: 8) {
                 Text(isShowingPath ? "Watch the path!" : "Repeat the sequence")
                     .font(.system(size: 22, weight: .bold, design: .rounded))
-                    .foregroundColor(.softCream)
+                    .foregroundColor(.appSoftCream)
                 
                 Text(isShowingPath ? "Memorize which tiles light up" : "Tap tiles in the same order")
                     .font(.system(size: 14, weight: .medium, design: .rounded))
-                    .foregroundColor(.softCream.opacity(0.6))
+                    .foregroundColor(.appSoftCream.opacity(0.6))
             }
             
             // Grid
@@ -64,7 +64,7 @@ struct PathfinderGameView: View {
             .padding(20)
             .background(
                 RoundedRectangle(cornerRadius: 24)
-                    .fill(Color.darkSurface)
+                    .fill(Color.appDarkSurface)
             )
             .padding(.horizontal, 20)
             
@@ -72,11 +72,11 @@ struct PathfinderGameView: View {
             HStack(spacing: 6) {
                 ForEach(0..<pathLength, id: \.self) { index in
                     Circle()
-                        .fill(index < playerPath.count ? Color.warmGold : Color.darkSurface)
+                        .fill(index < playerPath.count ? Color.appWarmGold : Color.appDarkSurface)
                         .frame(width: 12, height: 12)
                         .overlay(
                             Circle()
-                                .stroke(Color.warmGold.opacity(0.3), lineWidth: 1)
+                                .stroke(Color.appWarmGold.opacity(0.3), lineWidth: 1)
                         )
                 }
             }
@@ -89,11 +89,11 @@ struct PathfinderGameView: View {
                 VStack(spacing: 12) {
                     Image(systemName: roundSuccess ? "checkmark.circle.fill" : "xmark.circle.fill")
                         .font(.system(size: 60))
-                        .foregroundColor(roundSuccess ? .successGreen : .mutedAmber)
+                        .foregroundColor(roundSuccess ? .appSuccessGreen : .appMutedAmber)
                     
                     Text(roundSuccess ? "Correct!" : "Wrong path!")
                         .font(.system(size: 24, weight: .bold, design: .rounded))
-                        .foregroundColor(roundSuccess ? .successGreen : .mutedAmber)
+                        .foregroundColor(roundSuccess ? .appSuccessGreen : .appMutedAmber)
                 }
                 .transition(.scale.combined(with: .opacity))
             }
@@ -215,20 +215,20 @@ struct PathTile: View {
     }
     
     private var tileColor: Color {
-        if isHighlighted { return .warmGold }
-        if isCorrect { return .successGreen.opacity(0.7) }
-        if isWrong { return .mutedAmber.opacity(0.7) }
-        if isSelected { return .warmGold.opacity(0.4) }
-        return .darkSurface.opacity(0.8)
+        if isHighlighted { return .appWarmGold }
+        if isCorrect { return .appSuccessGreen.opacity(0.7) }
+        if isWrong { return .appMutedAmber.opacity(0.7) }
+        if isSelected { return .appWarmGold.opacity(0.4) }
+        return .appDarkSurface.opacity(0.8)
     }
     
     private var borderColor: Color {
-        if isSelected { return .warmGold }
+        if isSelected { return .appWarmGold }
         return .clear
     }
     
     private var shadowColor: Color {
-        if isHighlighted { return .warmGold.opacity(0.6) }
+        if isHighlighted { return .appWarmGold.opacity(0.6) }
         return .clear
     }
 }

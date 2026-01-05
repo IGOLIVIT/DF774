@@ -58,7 +58,7 @@ struct LoadingView: View {
                     ForEach(0..<3, id: \.self) { index in
                         Circle()
                             .stroke(
-                                Color.warmGold.opacity(0.15 - Double(index) * 0.05),
+                                Color.appWarmGold.opacity(0.15 - Double(index) * 0.05),
                                 lineWidth: 2
                             )
                             .frame(width: CGFloat(100 + index * 30), height: CGFloat(100 + index * 30))
@@ -74,17 +74,17 @@ struct LoadingView: View {
                     Circle()
                         .fill(
                             LinearGradient(
-                                colors: [.warmGold, .mutedAmber],
+                                colors: [.appWarmGold, .appMutedAmber],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                         )
                         .frame(width: 80, height: 80)
-                        .shadow(color: .warmGold.opacity(0.5), radius: 20, x: 0, y: 10)
+                        .shadow(color: .appWarmGold.opacity(0.5), radius: 20, x: 0, y: 10)
                     
                     Image(systemName: "arrow.up.forward")
                         .font(.system(size: 32, weight: .bold))
-                        .foregroundColor(.deepCharcoal)
+                        .foregroundColor(.appDeepCharcoal)
                         .rotationEffect(.degrees(isAnimating ? 0 : -5))
                         .animation(
                             .easeInOut(duration: 1.0)
@@ -98,19 +98,19 @@ struct LoadingView: View {
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
                             RoundedRectangle(cornerRadius: 4)
-                                .fill(Color.darkSurface)
+                                .fill(Color.appDarkSurface)
                                 .frame(height: 6)
                             
                             RoundedRectangle(cornerRadius: 4)
                                 .fill(
                                     LinearGradient(
-                                        colors: [.warmGold, .mutedAmber],
+                                        colors: [.appWarmGold, .appMutedAmber],
                                         startPoint: .leading,
                                         endPoint: .trailing
                                     )
                                 )
                                 .frame(width: geometry.size.width * progress, height: 6)
-                                .shadow(color: .warmGold.opacity(0.5), radius: 4)
+                                .shadow(color: .appWarmGold.opacity(0.5), radius: 4)
                         }
                     }
                     .frame(height: 6)
@@ -118,7 +118,7 @@ struct LoadingView: View {
                     
                     Text("Loading...")
                         .font(.system(size: 14, weight: .medium, design: .rounded))
-                        .foregroundColor(.softCream.opacity(0.5))
+                        .foregroundColor(.appSoftCream.opacity(0.5))
                 }
             }
         }

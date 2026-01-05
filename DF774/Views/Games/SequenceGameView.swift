@@ -51,8 +51,8 @@ struct SequenceGameView: View {
                 HStack(spacing: 4) {
                     ForEach(1...roundsToComplete, id: \.self) { round in
                         Circle()
-                            .fill(round < currentRound ? Color.successGreen :
-                                  round == currentRound ? Color.warmGold : Color.darkSurface)
+                            .fill(round < currentRound ? Color.appSuccessGreen :
+                                  round == currentRound ? Color.appWarmGold : Color.appDarkSurface)
                             .frame(width: 12, height: 12)
                     }
                 }
@@ -61,7 +61,7 @@ struct SequenceGameView: View {
             
             Text("Round \(currentRound) of \(roundsToComplete)")
                 .font(.system(size: 14, weight: .medium, design: .rounded))
-                .foregroundColor(.softCream.opacity(0.6))
+                .foregroundColor(.appSoftCream.opacity(0.6))
             
             Spacer()
             
@@ -69,7 +69,7 @@ struct SequenceGameView: View {
             VStack(spacing: 16) {
                 Text("What comes next?")
                     .font(.system(size: 18, weight: .semibold, design: .rounded))
-                    .foregroundColor(.softCream)
+                    .foregroundColor(.appSoftCream)
                 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
@@ -79,7 +79,7 @@ struct SequenceGameView: View {
                         
                         ZStack {
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.warmGold, style: StrokeStyle(lineWidth: 2, dash: [8, 4]))
+                                .stroke(Color.appWarmGold, style: StrokeStyle(lineWidth: 2, dash: [8, 4]))
                                 .frame(width: 60, height: 60)
                             
                             if let selected = selectedOption {
@@ -87,7 +87,7 @@ struct SequenceGameView: View {
                             } else {
                                 Text("?")
                                     .font(.system(size: 28, weight: .bold, design: .rounded))
-                                    .foregroundColor(.warmGold)
+                                    .foregroundColor(.appWarmGold)
                             }
                         }
                     }
@@ -97,7 +97,7 @@ struct SequenceGameView: View {
             .padding(.vertical, 24)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.darkSurface.opacity(0.5))
+                    .fill(Color.appDarkSurface.opacity(0.5))
             )
             .padding(.horizontal, 20)
             
@@ -107,7 +107,7 @@ struct SequenceGameView: View {
             VStack(spacing: 16) {
                 Text("Select your answer")
                     .font(.system(size: 15, weight: .medium, design: .rounded))
-                    .foregroundColor(.softCream.opacity(0.5))
+                    .foregroundColor(.appSoftCream.opacity(0.5))
                 
                 LazyVGrid(columns: [
                     GridItem(.flexible(), spacing: 12),
@@ -171,7 +171,7 @@ struct SequenceGameView: View {
     private func generateArithmeticSequence() {
         let start = Int.random(in: 1...10)
         let step = Int.random(in: 2...5)
-        let colors: [Color] = [.warmGold, .mutedAmber, .successGreen]
+        let colors: [Color] = [.appWarmGold, .appMutedAmber, .appSuccessGreen]
         
         for i in 0..<sequenceLength {
             let value = start + (i * step)
@@ -187,7 +187,7 @@ struct SequenceGameView: View {
     private func generateGeometricSequence() {
         let start = Int.random(in: 2...4)
         let multiplier = 2
-        let colors: [Color] = [.mutedAmber, .warmGold, .successGreen]
+        let colors: [Color] = [.appMutedAmber, .appWarmGold, .appSuccessGreen]
         
         for i in 0..<min(sequenceLength, 5) {
             let value = start * Int(pow(Double(multiplier), Double(i)))
@@ -202,7 +202,7 @@ struct SequenceGameView: View {
     
     private func generateAlternatingSequence() {
         let values = [Int.random(in: 1...9), Int.random(in: 1...9)]
-        let colors: [Color] = [.warmGold, .mutedAmber]
+        let colors: [Color] = [.appWarmGold, .appMutedAmber]
         
         for i in 0..<sequenceLength {
             let idx = i % 2
@@ -221,7 +221,7 @@ struct SequenceGameView: View {
             fib.append(fib[fib.count - 1] + fib[fib.count - 2])
         }
         
-        let colors: [Color] = [.warmGold, .successGreen, .mutedAmber]
+        let colors: [Color] = [.appWarmGold, .appSuccessGreen, .appMutedAmber]
         
         for i in 0..<sequenceLength {
             sequence.append(SequenceElement(value: fib[i], displayValue: "\(fib[i])", color: colors[i % colors.count]))
@@ -246,7 +246,7 @@ struct SequenceGameView: View {
         ].filter { $0 != correctValue && $0 > 0 }.shuffled()
         
         for i in 0..<min(optionCount - 1, wrongValues.count) {
-            opts.append(SequenceElement(value: wrongValues[i], displayValue: "\(wrongValues[i])", color: .warmGold))
+            opts.append(SequenceElement(value: wrongValues[i], displayValue: "\(wrongValues[i])", color: .appWarmGold))
         }
         
         options = opts.shuffled()
@@ -305,7 +305,7 @@ struct SequenceItemCell: View {
             
             Text(element.displayValue)
                 .font(.system(size: 22, weight: .bold, design: .rounded))
-                .foregroundColor(isHighlighted ? .deepCharcoal : element.color)
+                .foregroundColor(isHighlighted ? .appDeepCharcoal : element.color)
         }
     }
 }
@@ -339,30 +339,30 @@ struct SequenceOptionButton: View {
     }
     
     private var backgroundColor: Color {
-        if isCorrect { return .successGreen }
-        if isWrong { return .mutedAmber }
-        if isSelected { return .warmGold.opacity(0.2) }
-        return .darkSurface
+        if isCorrect { return .appSuccessGreen }
+        if isWrong { return .appMutedAmber }
+        if isSelected { return .appWarmGold.opacity(0.2) }
+        return .appDarkSurface
     }
     
     private var borderColor: Color {
-        if isCorrect { return .successGreen }
-        if isWrong { return .mutedAmber }
-        if isSelected { return .warmGold }
+        if isCorrect { return .appSuccessGreen }
+        if isWrong { return .appMutedAmber }
+        if isSelected { return .appWarmGold }
         return .clear
     }
     
     private var shadowColor: Color {
-        if isCorrect { return .successGreen.opacity(0.5) }
-        if isWrong { return .mutedAmber.opacity(0.5) }
-        if isSelected { return .warmGold.opacity(0.3) }
+        if isCorrect { return .appSuccessGreen.opacity(0.5) }
+        if isWrong { return .appMutedAmber.opacity(0.5) }
+        if isSelected { return .appWarmGold.opacity(0.3) }
         return .clear
     }
     
     private var foregroundColor: Color {
         if isCorrect || isWrong { return .white }
-        if isSelected { return .warmGold }
-        return .softCream
+        if isSelected { return .appWarmGold }
+        return .appSoftCream
     }
 }
 

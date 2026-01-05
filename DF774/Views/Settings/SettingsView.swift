@@ -20,16 +20,16 @@ struct SettingsView: View {
                 HStack {
                     Text("Statistics")
                         .font(.system(size: 28, weight: .bold, design: .rounded))
-                        .foregroundColor(.softCream)
+                        .foregroundColor(.appSoftCream)
                     
                     Spacer()
                     
                     Button(action: { dismiss() }) {
                         Image(systemName: "xmark")
                             .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(.softCream.opacity(0.6))
+                            .foregroundColor(.appSoftCream.opacity(0.6))
                             .frame(width: 36, height: 36)
-                            .background(Circle().fill(Color.darkSurface))
+                            .background(Circle().fill(Color.appDarkSurface))
                     }
                 }
                 .padding(.horizontal, 24)
@@ -88,17 +88,17 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("OVERVIEW")
                 .font(.system(size: 13, weight: .bold, design: .rounded))
-                .foregroundColor(.softCream.opacity(0.5))
+                .foregroundColor(.appSoftCream.opacity(0.5))
                 .tracking(2)
             
             LazyVGrid(columns: [
                 GridItem(.flexible(), spacing: 12),
                 GridItem(.flexible(), spacing: 12)
             ], spacing: 12) {
-                StatisticCard(icon: "play.circle.fill", value: "\(gameManager.playerStats.totalSessions)", label: "Total Sessions", color: .warmGold)
-                StatisticCard(icon: "checkmark.circle.fill", value: "\(gameManager.totalCompletedLevels)", label: "Levels Completed", color: .successGreen)
-                StatisticCard(icon: "flame.fill", value: "\(gameManager.playerStats.bestStreak)", label: "Best Streak", color: .mutedAmber)
-                StatisticCard(icon: "clock.fill", value: gameManager.playerStats.formattedPlayTime, label: "Total Play Time", color: .warmGold)
+                StatisticCard(icon: "play.circle.fill", value: "\(gameManager.playerStats.totalSessions)", label: "Total Sessions", color: .appWarmGold)
+                StatisticCard(icon: "checkmark.circle.fill", value: "\(gameManager.totalCompletedLevels)", label: "Levels Completed", color: .appSuccessGreen)
+                StatisticCard(icon: "flame.fill", value: "\(gameManager.playerStats.bestStreak)", label: "Best Streak", color: .appMutedAmber)
+                StatisticCard(icon: "clock.fill", value: gameManager.playerStats.formattedPlayTime, label: "Total Play Time", color: .appWarmGold)
             }
         }
     }
@@ -108,7 +108,7 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("BY GAME")
                 .font(.system(size: 13, weight: .bold, design: .rounded))
-                .foregroundColor(.softCream.opacity(0.5))
+                .foregroundColor(.appSoftCream.opacity(0.5))
                 .tracking(2)
             
             VStack(spacing: 12) {
@@ -130,14 +130,14 @@ struct SettingsView: View {
             HStack {
                 Text("BADGES")
                     .font(.system(size: 13, weight: .bold, design: .rounded))
-                    .foregroundColor(.softCream.opacity(0.5))
+                    .foregroundColor(.appSoftCream.opacity(0.5))
                     .tracking(2)
                 
                 Spacer()
                 
                 Text("\(gameManager.earnedBadges.count)/\(MasteryBadge.allCases.count)")
                     .font(.system(size: 13, weight: .bold, design: .rounded))
-                    .foregroundColor(.warmGold)
+                    .foregroundColor(.appWarmGold)
             }
             
             LazyVGrid(columns: [
@@ -160,7 +160,7 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("DATA")
                 .font(.system(size: 13, weight: .bold, design: .rounded))
-                .foregroundColor(.softCream.opacity(0.5))
+                .foregroundColor(.appSoftCream.opacity(0.5))
                 .tracking(2)
             
             Button(action: { showResetConfirmation = true }) {
@@ -175,17 +175,17 @@ struct SettingsView: View {
                     
                     Image(systemName: "chevron.right")
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.softCream.opacity(0.4))
+                        .foregroundColor(.appSoftCream.opacity(0.4))
                 }
-                .foregroundColor(.mutedAmber)
+                .foregroundColor(.appMutedAmber)
                 .padding(20)
                 .background(
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.darkSurface)
+                        .fill(Color.appDarkSurface)
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.mutedAmber.opacity(0.3), lineWidth: 1)
+                        .stroke(Color.appMutedAmber.opacity(0.3), lineWidth: 1)
                 )
             }
             .buttonStyle(PlainButtonStyle())
@@ -208,18 +208,18 @@ struct StatisticCard: View {
             
             Text(value)
                 .font(.system(size: 24, weight: .bold, design: .rounded))
-                .foregroundColor(.softCream)
+                .foregroundColor(.appSoftCream)
             
             Text(label)
                 .font(.system(size: 12, weight: .medium, design: .rounded))
-                .foregroundColor(.softCream.opacity(0.5))
+                .foregroundColor(.appSoftCream.opacity(0.5))
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 20)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color.darkSurface)
+                .fill(Color.appDarkSurface)
         )
     }
 }
@@ -239,27 +239,27 @@ struct GameStatRow: View {
         HStack(spacing: 16) {
             ZStack {
                 Circle()
-                    .fill(Color.warmGold.opacity(0.15))
+                    .fill(Color.appWarmGold.opacity(0.15))
                     .frame(width: 48, height: 48)
                 
                 Image(systemName: gameType.icon)
                     .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(.warmGold)
+                    .foregroundColor(.appWarmGold)
             }
             
             VStack(alignment: .leading, spacing: 6) {
                 Text(gameType.rawValue)
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
-                    .foregroundColor(.softCream)
+                    .foregroundColor(.appSoftCream)
                 
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(Color.warmGold.opacity(0.2))
+                            .fill(Color.appWarmGold.opacity(0.2))
                             .frame(height: 6)
                         
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(Color.warmGold)
+                            .fill(Color.appWarmGold)
                             .frame(width: geometry.size.width * progress, height: 6)
                     }
                 }
@@ -269,17 +269,17 @@ struct GameStatRow: View {
             VStack(alignment: .trailing, spacing: 4) {
                 Text("\(completedLevels)/\(totalLevels)")
                     .font(.system(size: 14, weight: .bold, design: .rounded))
-                    .foregroundColor(.warmGold)
+                    .foregroundColor(.appWarmGold)
                 
                 Text("\(gamesPlayed) plays")
                     .font(.system(size: 11, weight: .medium, design: .rounded))
-                    .foregroundColor(.softCream.opacity(0.5))
+                    .foregroundColor(.appSoftCream.opacity(0.5))
             }
         }
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color.darkSurface)
+                .fill(Color.appDarkSurface)
         )
     }
 }
@@ -295,20 +295,20 @@ struct BadgeDisplayView: View {
                 Circle()
                     .fill(
                         isEarned ?
-                        LinearGradient(colors: [.warmGold, .mutedAmber], startPoint: .topLeading, endPoint: .bottomTrailing) :
-                        LinearGradient(colors: [.darkSurface, .darkSurface], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        LinearGradient(colors: [.appWarmGold, .appMutedAmber], startPoint: .topLeading, endPoint: .bottomTrailing) :
+                        LinearGradient(colors: [.appDarkSurface, .appDarkSurface], startPoint: .topLeading, endPoint: .bottomTrailing)
                     )
                     .frame(width: 56, height: 56)
-                    .shadow(color: isEarned ? .warmGold.opacity(0.4) : .clear, radius: 8, x: 0, y: 4)
+                    .shadow(color: isEarned ? .appWarmGold.opacity(0.4) : .clear, radius: 8, x: 0, y: 4)
                 
                 Image(systemName: badge.icon)
                     .font(.system(size: 24, weight: .semibold))
-                    .foregroundColor(isEarned ? .deepCharcoal : .softCream.opacity(0.3))
+                    .foregroundColor(isEarned ? .appDeepCharcoal : .appSoftCream.opacity(0.3))
             }
             
             Text(badge.rawValue)
                 .font(.system(size: 11, weight: .semibold, design: .rounded))
-                .foregroundColor(isEarned ? .softCream : .softCream.opacity(0.4))
+                .foregroundColor(isEarned ? .appSoftCream : .appSoftCream.opacity(0.4))
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
                 .frame(height: 30)
